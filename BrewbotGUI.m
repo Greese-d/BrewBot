@@ -58,6 +58,8 @@ handles.output = hObject;
  % Initialize Robot Model
 handles.robot = DobotNova2;
 
+q = [0 0 0 0 0 0];
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -83,6 +85,8 @@ function btn_espresso_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 disp("Making espresso")
+espresso_test(handles.robot)
+
 
 
 % --- Executes on button press in btn_flatwhite.
@@ -99,6 +103,7 @@ function btn_latte_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 disp("Making latte")
+latte_test(handles.robot)
 
 
 % --- Executes on button press in btn_icedcoffee.
