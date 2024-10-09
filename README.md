@@ -22,7 +22,7 @@ Menu options:
 Espresso, Latte, Flat white, Iced coffee, Tea
 
 Robot details:
-Arm 1 (Milkman)- UR3
+Arm 1 (Milkman)- UR3e
 Tasks:
 Espresso - Serving drink
 Latte/flat white - grabing a milk cup, filling from dispenser, frothing, pouring milk in coffee cup with espresso, putting milk cup back, serving drink
