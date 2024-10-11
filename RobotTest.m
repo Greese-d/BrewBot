@@ -1,7 +1,7 @@
 % Clear command window and workspace
-clc;
-clear all;
-close all;
+% clc;
+% clear all;
+% close all;
 
 % Function to set up the environment with various objects (shelves, barriers,
 % a person model, emergency stops, and a table).
