@@ -11,7 +11,7 @@ view(225, 30)
 % Load and place a shelf at the specified position
 disp("Placing environment objects")
 h = PlaceObject('Cup.ply', [-0.1, 0.3, 0.65]); 
-h = PlaceObject('CupLid.ply', [0.1, 0.3, 0.65]); 
+h = PlaceObject('CupLid.ply', [0.1, 0.3, 0.65]);
 
 h = PlaceObject('CupWithLid.ply', [-0.1, 0.15, 0.65]); 
 h = PlaceObject('MilkJug.ply', [0.1, 0.15, 0.65]); 

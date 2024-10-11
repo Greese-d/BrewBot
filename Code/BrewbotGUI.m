@@ -56,7 +56,7 @@ function BrewbotGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
  % Initialize Robot Model
- [handles.espressoman, handles.milkman] = EnvSetup;
+ [handles.nova2, handles.ur3] = EnvSetup;
 
 % Update handles structure
 guidata(hObject, handles);
@@ -83,7 +83,7 @@ function btn_espresso_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 disp("Making espresso")
-espresso_test(handles.espressoman)
+espresso_test(handles.nova2)
 
 
 
@@ -101,7 +101,7 @@ function btn_latte_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 disp("Making latte")
-latte_test(handles.espressoman)
+latte_test(handles.nova2)
 
 
 % --- Executes on button press in btn_icedcoffee.
