@@ -56,7 +56,7 @@ function BrewbotGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
  % Initialize Robot Model
-[handles.espressoman, handles.milkman] = EnvSetup;
+ [handles.espressoman, handles.milkman] = EnvSetup;
 
 % Update handles structure
 guidata(hObject, handles);
