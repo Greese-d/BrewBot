@@ -1,33 +1,34 @@
-% Clear command window and workspace
-% clc;
-% clear all;
-% close all;
-
-% Function to set up the environment with various objects (shelves, barriers,
-% a person model, emergency stops, and a table).
-
 hold on;  % Hold the current plot for multiple objects
 axis equal;  % Maintain equal scaling for all axes
 axis([-1.8 1.8 -1.8 1.8 -0.1 1.5]);  % Set the axis limits
 
-%% Place the shelf object on the table
-% Load and place a shelf at the specified position
-h = PlaceObject('Cup.ply', [-0.1, 0.3, 0.65]); 
-h = PlaceObject('CupLid.ply', [0.1, 0.3, 0.65]); 
+%% Placing environment images
+%imageData = imread('WallPicture1.jpg');
+%wallImage1 = imrotate(imageData, -90);
+%imageData = imread('WallPicture2.jpg');
+%wallImage2 = imrotate(imageData, -90);
+%surf([-1.8,-1.8;1.8,1.8],[1.8,1.8;1.8,1.8],[0,2;0,2],'CData',wallImage1,'FaceColor','texturemap');
+%surf([1.8,1.8;1.8,1.8],[-1.8,-1.8;1.8,1.8],[0,2;0,2],'CData',wallImage2,'FaceColor','texturemap');
 
-h = PlaceObject('CupWithLid.ply', [-0.1, 0.15, 0.65]); 
-h = PlaceObject('MilkJug.ply', [0.1, 0.15, 0.65]); 
+surf([-2,-2;2,2],[-2,2;-2,2],[0,0;0,0],'CData',imread('FloorImage.jpg'),'FaceColor','texturemap');
 
-%h = PlaceObject('IceCube.ply', [0, 0.5, 0]); 
-h = PlaceObject('EspressoHandle.ply', [0, 0.4, 0.7]); 
-h = PlaceObject('EspressoMachine.ply', [0.35, -0.5, 0.65]); 
+%% Movable objects
+cup = PlaceObject('Cup.ply', [-0.1, 0.3, 0.65]); % add coffee cup model
+cupLid = PlaceObject('CupLid.ply', [0.1, 0.3, 0.65]); % add coffee lid model
 
-h = PlaceObject('Grinder.ply', [0.9, -0.2, 0.65]); 
-h = PlaceObject('IceCubeDispenser.ply', [-0.75, -0.5, 0.65]); 
+% cupWithLid = PlaceObject('CupWithLid.ply', [-0.1, 0.15, 0.65]); % add cup with lid model
+milkJug = PlaceObject('MilkJug.ply', [0.1, 0.15, 0.65]); % add milk jug model
 
-h = PlaceObject('Table.ply', [0, 0, 0.4]); 
+iceCube = PlaceObject('IceCube.ply', [0, 0.5, 0]); % add ice cube model
+portafilter = PlaceObject('EspressoHandle.ply', [0, 0.4, 0.7]); % add portafilter model (coffee handle)
 
 
+%% Non-movable objects
+espressoMachine = PlaceObject('EspressoMachine.ply', [0.35, -0.5, 0.65]); % add espresso machine model
+grinder = PlaceObject('Grinder.ply', [0.9, -0.2, 0.65]); % add coffee grinder model
+iceCubeDispenser = PlaceObject('IceCubeDispenser.ply', [-0.75, -0.5, 0.65]); % add ice cube dispenser model
+table = PlaceObject('Table.ply', [0, 0, 0.4]); % add table
+coffeeBooth = PlaceObject('CoffeeBooth.ply', [-1.35,-0.6,0]); % add coffee booth model
 
 %% Adding DobotNova2 robot to the environment 
 disp('Adding DobotNova2 robot to the environment');
