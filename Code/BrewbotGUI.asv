@@ -88,6 +88,7 @@ set(hObject, 'Interruptible', 'on');
 
 disp("Making espresso")
 handles.movement.espresso_test2(hObject);
+guidata(hObject, handles)
 
 
 
