@@ -84,9 +84,6 @@ classdef BrewbotTestMovements
                 obj.ur3e.model.animate(qMatrix_ur3e(i, :))
                 pause(0.01)
             end
-
-
-
         end
 
     end
