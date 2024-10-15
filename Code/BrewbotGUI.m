@@ -55,11 +55,12 @@ function BrewbotGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for BrewbotGUI
 handles.output = hObject;
 
- % Initialize Robot Model
-[nova2, ur3e] = EnvSetup;
-handles.movement = BrewbotTestMovements(nova2, ur3e);
+ % Initialize Robot Models
+[nova2, ur3e] = EnvSetup; % create environment, stash robot objects
+handles.movement = BrewbotTestMovements(nova2, ur3e); % create instance of movement class and inject robot objects
 
-handles.isStopped = false;
+handles.isStopped = false; % flag for e-stop, set to false initially
+set(handles.btn_reset, "Enable", "off"); % deactivate reset button
 
 % Update handles structure
 guidata(hObject, handles);
@@ -84,10 +85,10 @@ function btn_espresso_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_espresso (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-set(hObject, 'Interruptible', 'on');
 
+%Execture espresso-making function
 disp("Making espresso")
-handles.movement.espresso_test2(hObject);
+handles.movement.espresso_test(hObject); %test function for simple movement
 
 
 
@@ -104,8 +105,10 @@ function btn_latte_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_latte (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+%Execute latte-making function
 disp("Making latte")
-latte_test(handles.nova2)
+handles.movement.latte_test(hObject); %test function for simple movement
 
 
 % --- Executes on button press in btn_icecoffee.
@@ -130,15 +133,20 @@ function btn_emstop_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% Changes e-stop flag to true
 disp("Emergency stop")
 handles.isStopped = true;
 guidata(hObject, handles);
 
+% Disables menu options buttons
 set(handles.btn_espresso, "Enable", "off")
 set(handles.btn_flatwhite, "Enable", "off")
 set(handles.btn_latte, "Enable", "off")
 set(handles.btn_icecoffee, "Enable", "off")
 set(handles.btn_tea, "Enable", "off")
+
+% Enables reset button
+set(handles.btn_reset, "Enable", "on");
 
 
 % --- Executes on button press in btn_close.
@@ -156,14 +164,18 @@ function btn_reset_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.isStopped = false;
+handles.movement.resetRobots();
 guidata(hObject, handles);
 
-% Enable buttons again
+% Enable menu options buttons again
 set(handles.btn_espresso, "Enable", "on");
 set(handles.btn_flatwhite, "Enable", "on");
 set(handles.btn_latte, "Enable", "on");
 set(handles.btn_icecoffee, "Enable", "on");
 set(handles.btn_tea, "Enable", "on");
+
+% Disable reset buttons
+set(handles.btn_reset, "Enable", "off");
 
 disp("System reset to default state.");
 

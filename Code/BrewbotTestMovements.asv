@@ -16,8 +16,8 @@ classdef BrewbotTestMovements
             %   properties
             obj.nova2 = r_nova2;
             obj.ur3e = r_ur3e;
-            obj.ur3e_defaultPos = zeros(obj.ur3e.model.n);
-            obj.nova2_defaultPos = zeros(obj.nova2.model.n);
+            obj.ur3e_defaultPos = zeros(1, obj.ur3e.model.n);
+            obj.nova2_defaultPos = zeros(1, obj.nova2.model.n);
         end
         
         function stop = checkEmergencyStop(~, hObject)
@@ -33,34 +33,58 @@ classdef BrewbotTestMovements
             end
         end
 
-        function espresso_test2(obj, hObject)
+        % Simple test function to move 1st joint of nova2 180 degrees
+        function espresso_test(obj, hObject)
             q = obj.nova2.model.getpos();
-            qInitial = q;
-            
-            for i = qInitial(1)+0 : 0.05 : qInitial(1) + 1*pi
-    
-                if obj.checkEmergencyStop(hObject)
+            q(1) = q(1) + pi;
+            moveRobot(obj, hObject, obj.nova2, q)
+
+        end
+
+        %Simple test function to move 2nd joint of ur3e 135 degrees
+        function latte_test(obj, hObject)
+            q = obj.ur3e.model.getpos();
+            q(2) = q(2) + 3*pi/4;
+            moveRobot(obj, hObject, obj.ur3e, q)
+        end
+
+
+        %Helper function to move robot to desired location specified by q.
+        %Also checks if e-stop was initiated and does not move robo
+        function moveRobot(obj, hObject, robot, q)
+
+            q0 = robot.model.getpos();
+            qMatrix = jtraj(q0, q, 60);
+            for i = 1 : size(qMatrix, 1)
+                if checkEmergencyStop(obj, hObject)
                     return;
                 end
 
-                q(1) = i;
-                obj.nova2.model.animate(q);
+                robot.model.animate(qMatrix(i, :))
                 pause(0.01)
-                obj.nova2.model.getpos()
-
-            end
-
-        end
-
-        function moveRobot(~, robot, q)
-            
-            q0 = robot.getpos();
-            qMatrix = jtraj(q0, q, 60);
-            for i = 1 : size(qMatrix)
-                robot.model.animate(qMatrix(i))
             end
              
         end
+
+        function resetRobots(obj)
+            n = 60;
+            
+            q0_nova2 = obj.nova2.model.getpos();
+            q0_ur3e = obj.ur3e.model.getpos();
+            qMatrix_nova2 = jtraj(q0_nova2, obj.nova2_defaultPos, n);
+            qMatrix_ur3e = jtraj(q0_ur3e, obj.ur3e_defaultPos, n);
+            
+            for i = 1 : n
+
+                obj.nova2.model.animate(qMatrix_nova2(i, :))
+                obj.ur3e.model.animate(qMatrix_ur3e(i, :))
+                pause(0.01)
+            end
+
+
+
+        end
+
     end
 end
 
