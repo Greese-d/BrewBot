@@ -1,5 +1,5 @@
 classdef BrewbotTestMovements
-    %This class is a collection of movements and helper function to test
+    %This class is a collection of movements and helper functions to test
     %GUI's functionality
     
     properties
@@ -34,38 +34,84 @@ classdef BrewbotTestMovements
             end
         end
 
-        % Simple test function to move 1st joint of nova2 180 degrees
         function espresso_test(obj, hObject)
-            q = obj.nova2.model.getpos();
-            q(1) = q(1) + pi;
-            moveRobot(obj, hObject, obj.nova2, q)
+    % Movement for DobotNova2 (robot1)
+    q1Waypoints = [
+        deg2rad([-50.9, 123, 137, 259, 115, 0]);    % Initial position
+        deg2rad([-58.9,123,122,281,115,0]);      % First waypoint
+        deg2rad([-58.9,123,137,259,115,0]); 
+        deg2rad([-109,87,151,281,118,0]);
+        deg2rad([-138,72.6,130,310,93.6,0]);
+        deg2rad([-188,72.6,130,310,93.6,0]);
+        deg2rad([-188,175,5,360,93.6,0]);
+        deg2rad([-196,123,108,302,93.6,0]);
+        deg2rad([-138,101,137,302,93.6,0]);     % Second waypoint
+    ];
 
+    qMatrix1 = InterpolateWaypointRadians(q1Waypoints, deg2rad(5));
+
+    % Movement for UR3e (robot2)
+    q2Waypoints = [
+        deg2rad([50, 100, 90, 270, 120, 0]);   % Different starting configuration
+        deg2rad([55, 95, 85, 275, 115, 0]);    % Slightly different waypoints for robot2
+        deg2rad([60, 90, 80, 280, 110, 0]); 
+        deg2rad([65, 85, 75, 285, 105, 0]);
+        deg2rad([70, 80, 70, 290, 100, 0]);
+        deg2rad([75, 75, 65, 295, 95, 0]);
+        deg2rad([80, 70, 60, 300, 90, 0]);
+        deg2rad([85, 65, 55, 305, 85, 0]);
+        deg2rad([0, 0, 0, 0, 0, 0]);
+    ];
+
+    qMatrix2 = InterpolateWaypointRadians(q2Waypoints, deg2rad(5));
+
+    % Ensure both robots move for the same number of steps
+    steps = max(size(qMatrix1, 1), size(qMatrix2, 1));
+
+    % Loop through and move both robots simultaneously
+    for i = 1:steps
+        % Check for emergency stop
+        if checkEmergencyStop(obj, hObject)
+            return;
         end
 
-        %Simple test function to move 2nd joint of ur3e 135 degrees
+        % Move DobotNova2 (robot1)
+        if i <= size(qMatrix1, 1)
+            obj.nova2.model.animate(qMatrix1(i, :));  % Animate DobotNova2
+        else
+            obj.nova2.model.animate(qMatrix1(end, :));  % Hold last position
+        end
+
+        % Move UR3e (robot2)
+        if i <= size(qMatrix2, 1)
+            obj.ur3e.model.animate(qMatrix2(i, :));  % Animate UR3e
+        else
+            obj.ur3e.model.animate(qMatrix2(end, :));  % Hold last position
+        end
+
+        % Pause briefly to simulate real-time animation
+        pause(0.01);
+    end
+end
+
+
+        % Function to move 2nd joint of UR3e 135 degrees (latte test)
         function latte_test(obj, hObject)
             q = obj.ur3e.model.getpos();
             q(2) = q(2) + 3*pi/4;
             moveRobot(obj, hObject, obj.ur3e, q)
         end
 
-
-        %Helper function to move robot to desired location specified by q.
-        %Also checks if e-stop was initiated and does not move robot when
-        %it was.
-        function moveRobot(obj, hObject, robot, q)
-
-            q0 = robot.model.getpos();
-            qMatrix = jtraj(q0, q, 60);
+        % Helper function to move robot to desired location specified by qMatrix
+        % Checks if e-stop was initiated and does not move robot if triggered
+        function moveRobot(obj, hObject, robot, qMatrix)
             for i = 1 : size(qMatrix, 1)
                 if checkEmergencyStop(obj, hObject)
                     return;
                 end
-
-                robot.model.animate(qMatrix(i, :))
-                pause(0.01)
+                robot.model.animate(qMatrix(i, :));  % Animate robot to the given configuration
+                pause(0.01);
             end
-             
         end
 
         % Function to move both nova2 and ur3e to their default position
@@ -79,13 +125,35 @@ classdef BrewbotTestMovements
             qMatrix_ur3e = jtraj(q0_ur3e, obj.ur3e_defaultPos, n);
             
             for i = 1 : n
-
-                obj.nova2.model.animate(qMatrix_nova2(i, :))
-                obj.ur3e.model.animate(qMatrix_ur3e(i, :))
-                pause(0.01)
+                obj.nova2.model.animate(qMatrix_nova2(i, :));
+                obj.ur3e.model.animate(qMatrix_ur3e(i, :));
+                pause(0.01);
             end
         end
 
     end
 end
 
+%% Supporting functions (Interpolate and FineInterpolation)
+function qMatrix = InterpolateWaypointRadians(waypointRadians, maxStepRadians)
+    if nargin < 2
+        maxStepRadians = deg2rad(1);
+    end
+
+    qMatrix = [];
+    for i = 1:size(waypointRadians, 1) - 1
+        qMatrix = [qMatrix; FineInterpolation(waypointRadians(i, :), waypointRadians(i + 1, :), maxStepRadians)]; %#ok<AGROW>
+    end
+end
+
+function qMatrix = FineInterpolation(q1, q2, maxStepRadians)
+    if nargin < 3
+        maxStepRadians = deg2rad(1);
+    end
+    
+    steps = 2;
+    while ~isempty(find(maxStepRadians < abs(diff(jtraj(q1, q2, steps))), 1))
+        steps = steps + 1;
+    end
+    qMatrix = jtraj(q1, q2, steps);
+end
