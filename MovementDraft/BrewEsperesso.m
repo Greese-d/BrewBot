@@ -19,17 +19,36 @@ nova2.model.teach();  % Call teach function to manually set the position
 
 %% Optionally, define a trajectory for ur3e (if needed)
 % Uncomment the following lines if you want to define a trajectory for ur3e
-% qWaypoints2 = [
-%     deg2rad([50, 100, 90, 270, 120, 0]);   % Different starting configuration
-%     deg2rad([55, 95, 85, 275, 115, 0]);    % Slightly different waypoints for robot2
-%     % Add more waypoints as needed...
-% ];
-% 
-% % Interpolate waypoints for robot2
-% qMatrix2 = InterpolateWaypointRadians(qWaypoints2, deg2rad(5));  % For robot2
-% 
-% % Resample qMatrix2 to have a certain number of steps if needed
-% qMatrix2_resampled = resampleTrajectory(qMatrix2, maxSteps);
+   qWaypoints2 = [
+    deg2rad([0, 0, 0, 0, 0, 0]);              % Initial position
+    deg2rad([-7.2, -7.2, 7.2, -93.6, 180, 0]); % Grab cup position
+    deg2rad([-7.2, 36, -72, -50.4, 180, 0]);   % Lift cup
+    deg2rad([5, 57.6, -122, -21.6, 180, 0]);   % Move to next position (possibly N or intermediary)
+    deg2rad([64.8, 57.6, -122, -21.6, 180, 0]);  % Move to machine (approaching cup placement)
+    deg2rad([64.8, 43.2, -108, -21.6, 180, 0]);  % Place cup at machine
+    deg2rad([57.6, 93.6, -158, -21.6, 180, 0]); % Pull back after placing cup
+    deg2rad([0, 93.6, -158, -21.6, 180, 0]);   % Rotate back to initial
+    deg2rad([-14.4, 14.4, -28.8, -64.8, 93.6, 0]); % Pick pipe
+    deg2rad([7.2, 101, -151, -36, 93.6, 0]);   % Lift pipe
+    deg2rad([151, 101, -151, -36, 93.6, 0]);    % Rotate with pipe
+    deg2rad([151, 79.2, -130, -36, 93.6, 0]);   % Place pipe
+    %add some time
+    deg2rad([151, 101, -151, -36, 93.6, 0]);   % Pull pipe back
+    deg2rad([86.4, 115, -115, -93.6, 93.6, 0]); % Place pipe (somewhere else)
+    %add some time
+    deg2rad([50.4, 86.4, -158, -21.6, 180, 0]); % Pull back to prepare for next action
+    deg2rad([64.8, 43.2, -108, -21.6, 180, 0]);  % Pick up cup again
+    deg2rad([7.2, 57.6, -122, -21.6, 180, 0]); % Pull back with the cup
+    deg2rad([-7.2, -7.2, 7.2, -93.6, 180, 0]); % Place cup back to original position
+    deg2rad([0, 0, 0, 0, 0, 0]);              % Return to home position
+];
+
+ 
+ % Interpolate waypoints for robot2
+ qMatrix2 = InterpolateWaypointRadians(qWaypoints2, deg2rad(5));  % For robot2
+ 
+ % Resample qMatrix2 to have a certain number of steps if needed
+ qMatrix2_resampled = resampleTrajectory(qMatrix2, maxSteps);
 
 %% Animate the UR3e robot with the defined trajectory (if uncommented above)
 % for i = 1:size(qMatrix2_resampled, 1)
