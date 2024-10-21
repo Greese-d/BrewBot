@@ -57,7 +57,10 @@ handles.output = hObject;
 
  % Initialize Robot Models
 [nova2, ur3e] = EnvSetup; % create environment, stash robot objects
-handles.movement = BrewbotTestMovements(nova2, ur3e); % create instance of movement class and inject robot objects
+arduinoBoard = arduino('COM4', 'Uno', 'Libraries', 'Servo');  % Replace 'COM3' with the correct port
+
+% Create instance of movement class and inject robot objects and Arduino object
+handles.movement = BrewbotTestMovements(nova2, ur3e, arduinoBoard);
 
 handles.isStopped = false; % flag for e-stop, set to false initially
 set(handles.btn_reset, "Enable", "off"); % deactivate reset button
