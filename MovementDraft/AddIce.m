@@ -14,7 +14,7 @@ axis([-1.8 1.8 -1.8 1.8 -0.1 1.5]);  % Set the axis limits
 view(210, 20)
 %% Teach function for nova2
 disp('Please teach the UR3e robot by moving it to the desired position and pressing Enter.');
-ur3e.model.teach();  % Call teach function to manually set the position
+nova2.model.teach();  % Call teach function to manually set the position
 
 %% Define a trajectory for UR3e
 qWaypoints2 = [
@@ -28,14 +28,7 @@ qMatrix2 = InterpolateWaypointRadians(qWaypoints2, deg2rad(4));  % For UR3e
 maxSteps = 600;  % You can adjust the number of steps for smoother/slower motion
 qMatrix2_resampled = resampleTrajectory(qMatrix2, maxSteps);
 
-%% Animate the UR3e robot with the defined trajectory
 
-for i = 1:size(qMatrix2_resampled, 1)
-    ur3e.model.animate(qMatrix2_resampled(i, :));  % Animate UR3e
-
-
-    pause(0.05);  % Adjust pause for slower movement
-end
 
 %% Resampling function to match trajectory length
 function qMatrix_resampled = resampleTrajectory(qMatrix, numSteps)
