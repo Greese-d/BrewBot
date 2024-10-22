@@ -183,6 +183,8 @@ function btn_reset_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.isStopped = false;
+
+
 handles.movement.resetRobots();
 guidata(hObject, handles);
 

@@ -20,23 +20,34 @@ classdef BrewbotTestMovements
             obj.arduinoObj = arduinoObj;  % Store the Arduino object
         end
         
-        % Returns true if either emergency stop (GUI or Arduino button) is active
         function stop = checkEmergencyStop(obj, hObject)
             handles = guidata(hObject);  % Retrieve the updated handles
-    
+        
+            % Initialize stop to false
+            stop = false;
+        
             % Check if the GUI emergency stop has been triggered
             if handles.isStopped
                 disp("Process interrupted by emergency stop (GUI)");
-                stop = true;  % Return true if GUI emergency stop is triggered
-                return;
+                stop = true;  % Set stop to true if GUI emergency stop is triggered
+                return;  % Exit the function early if GUI stop is active
             end
-            
-            buttonState = readDigitalPin(obj.arduinoObj, 'D2');  % Read from pin 2
-            if buttonState == 1  % Button pressed
-                disp("Process interrupted by emergency stop (Arduino button)");
-                stop = true;  % Return true if Arduino button is pressed
+        
+            % Check Arduino emergency stop if Arduino object is available
+            if ~isempty(obj.arduinoObj)  % Ensure Arduino object is initialized
+                try
+                    buttonState = readDigitalPin(obj.arduinoObj, 'D2');  % Read from pin 2
+                    if buttonState == 1  % Button pressed
+                        disp("Process interrupted by emergency stop (Arduino button)");
+                        stop = true;  % Set stop to true if Arduino button is pressed
+                    end
+                catch ME
+                    disp("Error reading Arduino pin: " + ME.message);
+                    % If there's an error reading the Arduino, you might choose to set stop = true
+                    % stop = true;  % Uncomment if you want to stop the process in case of an Arduino error
+                end
             else
-                stop = false;  % Return false if neither stop is triggered
+                disp("Arduino object is not initialized or connected.");
             end
         end
 
