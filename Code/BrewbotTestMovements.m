@@ -116,9 +116,94 @@ classdef BrewbotTestMovements
 
         % Function to move 2nd joint of UR3e 135 degrees (latte test)
         function latte_test(obj, hObject)
-            q = obj.ur3e.model.getpos();
-            q(2) = q(2) + 3*pi/4;
-            moveRobot(obj, hObject, obj.ur3e, q)
+             % Movement for DobotNova2 (robot1)
+            q1Waypoints = [
+                deg2rad([0, 0, 0, 0, 0, 0]);              % Initial position
+                deg2rad([-7.2, -7.2, 7.2, -93.6, 180, 0]); % Grab cup position
+                deg2rad([-7.2, 36, -72, -50.4, 180, 0]);   % Lift cup
+                deg2rad([5, 57.6, -122, -21.6, 180, 0]);   % Move to intermediary
+                deg2rad([64.8, 57.6, -122, -21.6, 180, 0]);  % Move to machine (cup placement)
+                deg2rad([64.8, 43.2, -108, -21.6, 180, 0]);  % Place cup
+                deg2rad([57.6, 93.6, -158, -21.6, 180, 0]); % Pull back after placing
+                deg2rad([0, 93.6, -158, -21.6, 180, 0]);    % Rotate back to initial
+                deg2rad([-14.4, 14.4, -28.8, -64.8, 93.6, 0]); % Pick pipe
+                deg2rad([7.2, 101, -151, -36, 93.6, 0]);    % Lift pipe
+                deg2rad([151, 101, -151, -36, 93.6, 0]);    % Rotate with pipe
+                deg2rad([151, 79.2, -130, -36, 93.6, 0]);   % Place pipe
+                deg2rad([151, 101, -151, -36, 93.6, 0]);    % Pull pipe back
+                deg2rad([86.4, 115, -115, -93.6, 93.6, 0]); % Place pipe somewhere else
+                deg2rad([50.4, 86.4, -158, -21.6, 180, 0]); % Pull back for next action
+                deg2rad([64.8, 43.2, -108, -21.6, 180, 0]); % Pick up cup again
+                deg2rad([7.2, 57.6, -122, -21.6, 180, 0]);  % Pull back with the cup
+                deg2rad([-7.2, -7.2, 7.2, -93.6, 180, 0]);  % Place cup back
+                deg2rad([0, 0, 0, 0, 0, 0]);               % Return to home position
+            ];
+
+            qMatrix1 = InterpolateWaypointRadians(q1Waypoints, deg2rad(3));
+
+            % Movement for UR3e (robot2)
+            q2Waypoints = [
+                deg2rad([0, 0, 0, 0, 0, 0]);              % Initial position
+                deg2rad([0, -72, 108, 0, 0, 0]);          % Fold position
+                deg2rad([158, -72, 108, 0, 0, 0]);        % Rotate and move to grab cup
+                deg2rad([144, -72, 108, -108, 0, 0]);     % Drop the cup
+                deg2rad([144, -57.6, 101, -108, 0, 0]);   % Stretch towards placement
+                deg2rad([144, -28.8, 50.4, -108, 0, 0]);  % Grab the cup
+                deg2rad([144, -36, 57.6, -108, 0, 0]);    % Pull the cup
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
+                deg2rad([122, -50.4, 115, -151, 0, 0]);   % Position below frother
+                deg2rad([122, -50.4, 115, -151, 0, 0]);
+                deg2rad([122, -50.4, 115, -151, 0, 0]);
+                deg2rad([122, -50.4, 115, -151, 0, 0]);
+                deg2rad([100, -72, 108, -151, 0, 0]);   % Fold arm at frother
+                deg2rad([-22, -64.8, 137, -151, 0, 0]);   % Retract after frothing
+                deg2rad([0, 0, 0, 0, 0, 0]);              % Return to home position
+            ];
+
+            qMatrix2 = InterpolateWaypointRadians(q2Waypoints, deg2rad(5));
+
+            % Ensure both robots move for the same number of steps
+            steps = max(size(qMatrix1, 1), size(qMatrix2, 1));
+
+            % Loop through and move both robots simultaneously
+            for i = 1:steps
+                % Check for emergency stop
+                if checkEmergencyStop(obj, hObject)
+                    return;
+                end
+
+                % Move DobotNova2 (robot1)
+                if i <= size(qMatrix1, 1)
+                    obj.nova2.model.animate(qMatrix1(i, :));  % Animate DobotNova2
+                else
+                    obj.nova2.model.animate(qMatrix1(end, :));  % Hold last position
+                end
+
+                % Move UR3e (robot2)
+                if i <= size(qMatrix2, 1)
+                    obj.ur3e.model.animate(qMatrix2(i, :));  % Animate UR3e
+                else
+                    obj.ur3e.model.animate(qMatrix2(end, :));  % Hold last position
+                end
+                
+
+                % Pause briefly to simulate real-time animation
+                pause(0.05);
+            end
         end
 
         % Helper function to move robot to desired location specified by qMatrix
