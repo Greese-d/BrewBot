@@ -57,7 +57,23 @@ handles.output = hObject;
 
  % Initialize Robot Models
 [nova2, ur3e] = EnvSetup; % create environment, stash robot objects
-arduinoBoard = arduino('COM4', 'Uno', 'Libraries', 'Servo');  % Replace 'COM3' with the correct port
+
+try
+    availablePorts = serialportlist; % Get list of available serial ports
+    if ismember('COM4', availablePorts) % Replace 'COM4' with the correct port for Arduino
+        arduinoBoard = arduino('COM4', 'Uno', 'Libraries', 'Servo');  % Arduino is connected
+        handles.isArduinoConnected = true;
+        disp('Arduino connected successfully.');
+    else
+        handles.isArduinoConnected = false;
+        arduinoBoard = [];
+        disp('Arduino not connected.');
+    end
+catch
+    handles.isArduinoConnected = false;
+    arduinoBoard = [];
+    disp('Error: Unable to connect to Arduino.');
+end
 
 % Create instance of movement class and inject robot objects and Arduino object
 handles.movement = BrewbotTestMovements(nova2, ur3e, arduinoBoard);
