@@ -7,17 +7,28 @@ classdef BrewbotTestMovements
         ur3e;
         ur3e_defaultPos;
         nova2_defaultPos;
-        arduinoObj;  % Arduino object for button monitoring;
+        cup1;
+        cupLid; 
+        milkJug;
+        iceCube; 
+        portafilter;
+        arduinoObj; % Arduino object for button monitoring;
     end
     
     methods
-       function obj = BrewbotTestMovements(r_nova2, r_ur3e, arduinoObj)
+       function obj = BrewbotTestMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoObj)
             % Constructor to initialize the class with robots and serial
             obj.nova2 = r_nova2;
             obj.ur3e = r_ur3e;
             obj.ur3e_defaultPos = zeros(1, obj.ur3e.model.n);
             obj.nova2_defaultPos = zeros(1, obj.nova2.model.n);
+            obj.cup1 = cup;
+            obj.cupLid = cupLid; 
+            obj.milkJug = milkJug;
+            obj.iceCube = iceCube; 
+            obj.portafilter = portafilter;
             obj.arduinoObj = arduinoObj;  % Store the Arduino object
+
         end
         
         function stop = checkEmergencyStop(obj, hObject)
@@ -123,9 +134,17 @@ classdef BrewbotTestMovements
             pause(0.05);
         end
     end
+        
+        function MoveObjects(object, qCurrent, robot)
+            tr = robot.model.fkine(qCurrent); 
+            vertices = get(object, 'Vertices'); 
+            transformedVertices = [vertices, ones(size(vertices, 1), 1)] * tr.T;
+            set(object, 'Vertices', transformedVertices(:, 1:3));  
+        end
 
 
-        % Function to move 2nd joint of UR3e 135 degrees (latte test)
+
+        %% Function to move 2nd joint of UR3e 135 degrees (latte test)
         function latte_test(obj, hObject)
              % Movement for DobotNova2 (robot1)
             q1Waypoints = [
@@ -199,6 +218,9 @@ classdef BrewbotTestMovements
 
                 % Move DobotNova2 (robot1)
                 if i <= size(qMatrix1, 1)
+                    
+                    MoveObjects(obj.cup1, qMatrix1(i, :), obj.nova2);
+                    
                     obj.nova2.model.animate(qMatrix1(i, :));  % Animate DobotNova2
                 else
                     obj.nova2.model.animate(qMatrix1(end, :));  % Hold last position
@@ -211,7 +233,7 @@ classdef BrewbotTestMovements
                     obj.ur3e.model.animate(qMatrix2(end, :));  % Hold last position
                 end
                 
-
+                drawnow();
                 % Pause briefly to simulate real-time animation
                 pause(0.05);
             end
