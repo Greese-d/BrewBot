@@ -2,7 +2,7 @@ function [nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup
     hold on;  % Hold the current plot for multiple objects
     axis equal;  % Maintain equal scaling for all axes
     axis([-1.8 1.8 -1.8 1.8 -0.1 1.5]);  % Set the axis limits
-    view(210, 20)
+    view(210, 15)
     
     %% Initial coordinates to move the environemnt along 3 axis
     x = 0.2;
