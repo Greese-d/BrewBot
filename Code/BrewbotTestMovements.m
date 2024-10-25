@@ -7,36 +7,58 @@ classdef BrewbotTestMovements
         ur3e;
         ur3e_defaultPos;
         nova2_defaultPos;
-        arduinoObj;  % Arduino object for button monitoring;
+        cup1;
+        cupLid; 
+        milkJug;
+        iceCube; 
+        portafilter;
+        arduinoObj; % Arduino object for button monitoring;
     end
     
     methods
-       function obj = BrewbotTestMovements(r_nova2, r_ur3e, arduinoObj)
+       function obj = BrewbotTestMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoObj)
             % Constructor to initialize the class with robots and serial
             obj.nova2 = r_nova2;
             obj.ur3e = r_ur3e;
             obj.ur3e_defaultPos = zeros(1, obj.ur3e.model.n);
             obj.nova2_defaultPos = zeros(1, obj.nova2.model.n);
+            obj.cup1 = cup;
+            obj.cupLid = cupLid; 
+            obj.milkJug = milkJug;
+            obj.iceCube = iceCube; 
+            obj.portafilter = portafilter;
             obj.arduinoObj = arduinoObj;  % Store the Arduino object
+
         end
         
-        % Returns true if either emergency stop (GUI or Arduino button) is active
         function stop = checkEmergencyStop(obj, hObject)
             handles = guidata(hObject);  % Retrieve the updated handles
-    
+        
+            % Initialize stop to false
+            stop = false;
+        
             % Check if the GUI emergency stop has been triggered
             if handles.isStopped
                 disp("Process interrupted by emergency stop (GUI)");
-                stop = true;  % Return true if GUI emergency stop is triggered
-                return;
+                stop = true;  % Set stop to true if GUI emergency stop is triggered
+                return;  % Exit the function early if GUI stop is active
             end
-            
-            buttonState = readDigitalPin(obj.arduinoObj, 'D2');  % Read from pin 2
-            if buttonState == 1  % Button pressed
-                disp("Process interrupted by emergency stop (Arduino button)");
-                stop = true;  % Return true if Arduino button is pressed
+        
+            % Check Arduino emergency stop if Arduino object is available
+            if ~isempty(obj.arduinoObj)  % Ensure Arduino object is initialized
+                try
+                    buttonState = readDigitalPin(obj.arduinoObj, 'D2');  % Read from pin 2
+                    if buttonState == 1  % Button pressed
+                        disp("Process interrupted by emergency stop (Arduino button)");
+                        stop = true;  % Set stop to true if Arduino button is pressed
+                    end
+                catch ME
+                    disp("Error reading Arduino pin: " + ME.message);
+                    % If there's an error reading the Arduino, you might choose to set stop = true
+                    % stop = true;  % Uncomment if you want to stop the process in case of an Arduino error
+                end
             else
-                stop = false;  % Return false if neither stop is triggered
+                disp("Arduino object is not initialized or connected.");
             end
         end
 
@@ -112,9 +134,17 @@ classdef BrewbotTestMovements
             pause(0.05);
         end
     end
+        
+        function MoveObjects(object, qCurrent, robot)
+            tr = robot.model.fkine(qCurrent); 
+            vertices = get(object, 'Vertices'); 
+            transformedVertices = [vertices, ones(size(vertices, 1), 1)] * tr.T;
+            set(object, 'Vertices', transformedVertices(:, 1:3));  
+        end
 
 
-        % Function to move 2nd joint of UR3e 135 degrees (latte test)
+
+        %% Function to move 2nd joint of UR3e 135 degrees (latte test)
         function latte_test(obj, hObject)
              % Movement for DobotNova2 (robot1)
             q1Waypoints = [
@@ -188,6 +218,9 @@ classdef BrewbotTestMovements
 
                 % Move DobotNova2 (robot1)
                 if i <= size(qMatrix1, 1)
+                    
+                    MoveObjects(obj.cup1, qMatrix1(i, :), obj.nova2);
+                    
                     obj.nova2.model.animate(qMatrix1(i, :));  % Animate DobotNova2
                 else
                     obj.nova2.model.animate(qMatrix1(end, :));  % Hold last position
@@ -200,7 +233,7 @@ classdef BrewbotTestMovements
                     obj.ur3e.model.animate(qMatrix2(end, :));  % Hold last position
                 end
                 
-
+                drawnow();
                 % Pause briefly to simulate real-time animation
                 pause(0.05);
             end

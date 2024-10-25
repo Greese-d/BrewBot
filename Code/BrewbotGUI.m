@@ -56,7 +56,7 @@ function BrewbotGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
  % Initialize Robot Models
-[nova2, ur3e] = EnvSetup; % create environment, stash robot objects
+[nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup; % create environment, stash robot objects
 
 try
     availablePorts = serialportlist; % Get list of available serial ports
@@ -76,7 +76,7 @@ catch
 end
 
 % Create instance of movement class and inject robot objects and Arduino object
-handles.movement = BrewbotTestMovements(nova2, ur3e, arduinoBoard);
+handles.movement = BrewbotTestMovements(nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoBoard);
 
 handles.isStopped = false; % flag for e-stop, set to false initially
 set(handles.btn_reset, "Enable", "off"); % deactivate reset button
@@ -183,6 +183,8 @@ function btn_reset_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.isStopped = false;
+
+
 handles.movement.resetRobots();
 guidata(hObject, handles);
 

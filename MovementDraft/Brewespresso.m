@@ -43,7 +43,7 @@ nova2.model.teach();  % Call teach function to manually set the position
     deg2rad([0, 0, 0, 0, 0, 0]);              % Return to home position
 ];
 
- 
+ maxSteps = 600;
  % Interpolate waypoints for robot2
  qMatrix2 = InterpolateWaypointRadians(qWaypoints2, deg2rad(5));  % For robot2
  
