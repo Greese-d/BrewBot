@@ -19,18 +19,12 @@ ur3e.model.teach();  % Call teach function to manually set the position
 
 %% Define a trajectory for UR3e based on the provided joint angles (from the image)
 qWaypoints2 = [
-    deg2rad([0, 0, 0, 0, 0, 0]);               % Initial position
-    deg2rad([0, -64.8, 137, -151, 0, 0]);      % Rotate
-    deg2rad([100, -64.8, 137, -151, 0, 0]);    % Fold
-    deg2rad([100, -50.4, 115, -151, 0, 0]);    % Rotate
+
     deg2rad([122, -50.4, 115, -151, 0, 0]);    % Pick Jug
     deg2rad([122, -64.8, 115, -151, 0, 0]);    % Lift to Reach
     % Additional time step is mentioned in the image
     deg2rad([122, -50.4, 115, -151, 0, 0]);    % Put back Jug
-    deg2rad([100, -50.4, 115, -151, 0, 0]);    % Rotate
-    deg2rad([100, -64.8, 137, -151, 0, 0]);    % Fold
-    deg2rad([-22, -64.8, 137, -151, 0, 0]);      % Rotate back to initial fold position
-    deg2rad([0, 0, 0, 0, 0, 0]);               % Return to initial position
+
 ];
 
 % Interpolate waypoints for UR3e

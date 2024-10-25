@@ -28,9 +28,7 @@ qWaypoints2 = [
     deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk
     %wait time
     deg2rad([122, -50.4, 115, -151, 0, 0]);   % Put cup below frother
-    deg2rad([100, -72, 108, -151, 0, 0]);   % Fold arm at frother
-    deg2rad([-22, -64.8, 137, -151, 0, 0]);   % Retract after frothing
-    deg2rad([0, 0, 0, 0, 0, 0]);              % Return to home position
+
 ];
 
 % Interpolate waypoints for UR3e
