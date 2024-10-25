@@ -27,8 +27,8 @@ function [nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup
     milkDispenser = PlaceObject('MilkDispenser.ply', [x-0.3, y-0.25, z+0.66]); % add milk dispenser model
     table = PlaceObject('Table.ply', [x+0, y+0, z+0.4]); % add table
     
-    % Can be commented to remove the booth from environment for better view
-    coffeeBooth = PlaceObject('CoffeeBooth.ply', [x-1.3, y-0.6, z+0]); % add coffee booth model
+    %% Can be commented to remove the booth from environment for better view
+    %coffeeBooth = PlaceObject('CoffeeBooth.ply', [x-1.3, y-0.6, z+0]); % add coffee booth model
     
     
     %% Movable objects

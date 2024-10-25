@@ -55,6 +55,7 @@ function BrewbotGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for BrewbotGUI
 handles.output = hObject;
 
+
  % Initialize Robot Models
 [nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup; % create environment, stash robot objects
 

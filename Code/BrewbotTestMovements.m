@@ -7,12 +7,14 @@ classdef BrewbotTestMovements
         ur3e;
         ur3e_defaultPos;
         nova2_defaultPos;
-        cup1;
+        cup;
         cupLid; 
         milkJug;
         iceCube; 
         portafilter;
         arduinoObj; % Arduino object for button monitoring;
+        ur3eGripper;
+        nova2Gripper;
     end
     
     methods
@@ -22,13 +24,18 @@ classdef BrewbotTestMovements
             obj.ur3e = r_ur3e;
             obj.ur3e_defaultPos = zeros(1, obj.ur3e.model.n);
             obj.nova2_defaultPos = zeros(1, obj.nova2.model.n);
-            obj.cup1 = cup;
+            obj.cup = cup;
             obj.cupLid = cupLid; 
             obj.milkJug = milkJug;
             obj.iceCube = iceCube; 
             obj.portafilter = portafilter;
             obj.arduinoObj = arduinoObj;  % Store the Arduino object
-
+            
+            % Creating grippers
+            obj.ur3eGripper = DualFingerGripper(); % Creating gripper for UR3e
+            obj.nova2Gripper = DualFingerGripper(); % Creating gripper for DobotNova2
+            obj.AttachGripperToRobot(obj.ur3eGripper, obj.ur3e); % Attaching gripper to UR3e
+            obj.AttachGripperToRobot(obj.nova2Gripper, obj.nova2); % Attaching gripper to DobotNova2
         end
         
         function stop = checkEmergencyStop(obj, hObject)
@@ -135,13 +142,32 @@ classdef BrewbotTestMovements
         end
     end
         
-        function MoveObjects(object, qCurrent, robot)
-            tr = robot.model.fkine(qCurrent); 
-            vertices = get(object, 'Vertices'); 
-            transformedVertices = [vertices, ones(size(vertices, 1), 1)] * tr.T;
-            set(object, 'Vertices', transformedVertices(:, 1:3));  
-        end
 
+        %% Method to move objects attahced to end-effector of robot
+        function MoveObjects(~, object, qCurrent, robot)
+            % Compute the end-effector transformation matrix
+            tr = robot.model.fkine(qCurrent); 
+            disp(qCurrent);
+            
+            % Transform the object's vertices only relative to the current end-effector position
+            % Use the transformation matrix 'tr' directly to compute the new vertices
+            vertices = get(object, 'Vertices'); 
+            % Transform the vertices using the new end-effector pose
+            transformedVertices = [vertices, ones(size(vertices, 1), 1)] * tr.T;
+            
+            % Update the object's vertices
+            set(object, 'Vertices', transformedVertices(:, 1:3));
+        end
+        
+
+        %% Method to move gripper at the UR3e robot's end effector
+        function AttachGripperToRobot(~, gripper, robot)
+            % Retrieve the current transformation of the robot's end effector
+            endEffectorTr = robot.model.fkine(robot.model.getpos());
+            
+            % Update the gripper's base transformation to match the end effector's position
+            gripper.UpdateGripperPosition(endEffectorTr);
+        end
 
 
         %% Function to move 2nd joint of UR3e 135 degrees (latte test)
@@ -219,8 +245,9 @@ classdef BrewbotTestMovements
                 % Move DobotNova2 (robot1)
                 if i <= size(qMatrix1, 1)
                     
-                    MoveObjects(obj.cup1, qMatrix1(i, :), obj.nova2);
-                    
+                    %obj.MoveObjects(obj.milkJug, qMatrix2(i, :), obj.nova2);
+                    obj.AttachGripperToRobot(obj.nova2Gripper, obj.nova2);
+
                     obj.nova2.model.animate(qMatrix1(i, :));  % Animate DobotNova2
                 else
                     obj.nova2.model.animate(qMatrix1(end, :));  % Hold last position
@@ -228,6 +255,9 @@ classdef BrewbotTestMovements
 
                 % Move UR3e (robot2)
                 if i <= size(qMatrix2, 1)
+                    
+                    obj.AttachGripperToRobot(obj.ur3eGripper, obj.ur3e);
+
                     obj.ur3e.model.animate(qMatrix2(i, :));  % Animate UR3e
                 else
                     obj.ur3e.model.animate(qMatrix2(end, :));  % Hold last position
