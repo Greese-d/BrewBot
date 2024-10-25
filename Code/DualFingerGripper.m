@@ -16,15 +16,14 @@ classdef DualFingerGripper < handle
             self.baseTr = baseTr;
             
             % Create two finger instances
-            self.finger1 = GripperFinger(baseTr);  % First finger
             % Position the first finger
             disp('Adding Gripper object #1 to the end effector');
-            self.finger1.model.base = self.baseTr * trotz(pi) * trotx(pi/2);
-            
-            self.finger2 = GripperFinger(baseTr);  % Second finger
+            self.finger1 = GripperFinger(self.baseTr * trotz(pi) * trotx(pi/2));  % First finger
+           
             % Position the second finger
             disp('Adding Gripper object #2 to the end effector');
-            self.finger2.model.base = self.baseTr * trotx(pi/2);
+            self.finger2 = GripperFinger(self.baseTr * trotx(pi/2));  % Second finger
+
             
             % Plot the gripper (two fingers)
             self.PlotGripper();
