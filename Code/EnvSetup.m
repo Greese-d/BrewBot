@@ -38,7 +38,6 @@ function [nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup
     % cupWithLid = PlaceObject('CupWithLid.ply', [x-0.1, y+0.15, z+0.65]); % add cup with lid model
     milkJug = PlaceObject('MilkJug.ply', [x+0.1, y+0.15, z+0.65]); % add milk jug model
     
-    iceCube = PlaceObject('IceCube.ply', [x+0, y+0.5, z+0]); % add ice cube model
     portafilter = PlaceObject('EspressoHandle.ply', [x+0, y+0.4, z+0.7]); % add portafilter model (coffee handle)
     
     

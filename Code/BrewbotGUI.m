@@ -57,7 +57,7 @@ handles.output = hObject;
 
 
  % Initialize Robot Models
-[nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup; % create environment, stash robot objects
+[nova2, ur3e, cup, cupLid, milkJug, portafilter] = EnvSetup; % create environment, stash robot objects
 
 try
     availablePorts = serialportlist; % Get list of available serial ports
