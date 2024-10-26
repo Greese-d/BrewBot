@@ -75,7 +75,7 @@ classdef BrewbotTestMovements
         end
 
         % Processing orders - Calls for making drinks go here
-        % this function observes orders from GUI)
+        % this function observes orders from GUI
         function ProcessOrders(obj, hObject)
             handles = guidata(hObject);
             orders = handles.order_list;

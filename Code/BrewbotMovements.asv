@@ -10,15 +10,11 @@ classdef BrewbotMovements
         cup;
         cupLid; 
         milkJug;
+        iceCube; 
         portafilter;
         arduinoObj; % Arduino object for button monitoring;
         ur3eGripper;
         nova2Gripper;
-        cupVertices;
-        cupLidVertices;
-        milkJugVertices;
-        iceCubeVertices;
-        portafilterVertices;
     end
     
     %% Methods with 
@@ -290,7 +286,7 @@ classdef BrewbotMovements
 
 
     methods
-        function obj = BrewbotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, portafilter, arduinoObj)
+        function obj = BrewbotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoObj)
             % Constructor to initialize the class with robots and serial
             obj.nova2 = r_nova2;
             obj.ur3e = r_ur3e;
@@ -299,13 +295,15 @@ classdef BrewbotMovements
 
             obj.cup = cup;
             obj.cupVertices = get(obj.cup, 'Vertices');  
-
             obj.cupLid = cupLid; 
+
             obj.cupLidVertices = get(obj.cupLid, 'Vertices');  
-
             obj.milkJug = milkJug;
-            obj.milkJugVertices = get(obj.milkJug, 'Vertices'); 
 
+            obj.milkJugVertices = get(obj.milkJug, 'Vertices'); 
+            obj.iceCube = iceCube; 
+            
+            obj.iceCubeVertices = get(obj.iceCube, 'Vertices');
             obj.portafilter = portafilter;
             obj.portafilterVertices = get(obj.portafilter, 'Vertices');
 
@@ -387,12 +385,12 @@ classdef BrewbotMovements
             % Grab cup + Move to milk jub movement
             nova2Waypoints = BrewbotMovements.GrabCup();
             ur3eWaypoints = BrewbotMovements.MovetoJug();
-            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
+            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints);
             
             % Place cup at machine + Grab Jug
             nova2Waypoints = BrewbotMovements.PlaceCupatMachine();
             ur3eWaypoints = BrewbotMovements.GrabJug();
-            obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
+            obj.moveRobot(hObject, nova2Waypoints, obj.cup, vertices1, ur3eWaypoints, obj.milkJug, vertices2);
             
             % Portafilter to Grinder + Put Jug Below Frother
             nova2Waypoints = BrewbotMovements.PipetoGrinder();

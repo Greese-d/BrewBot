@@ -19,8 +19,7 @@ nova2.model.teach();  % Call teach function to manually set the position
 
 %% Define a trajectory for UR3e based on the provided joint angles (image)
 qWaypoints2 = [
-       deg2rad([122, -50.4, 115, -151, 0, 0]);    % Pick Jug
-
+    deg2rad([122, -50.4, 115, -151, 0, 0]);    % Pick Jug
     deg2rad([162, -50.4, 122, 0, 0, 0]);      % Rotate
     deg2rad([162, -57.7, 100, -43.2, 79.2, 0]);  % Grab cup
     deg2rad([162, -93.7, 136, -43.2, 79.2, 0]); % Lift cup
