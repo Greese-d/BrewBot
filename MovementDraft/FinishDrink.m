@@ -35,20 +35,12 @@ qMatrix_nova2 = InterpolateWaypointRadians(qWaypoints_nova2, deg2rad(4));  % For
 %% UR3e Waypoints from the image
 qWaypoints_ur3e = [
     deg2rad([0, 0, 0, 0, 0, 0]);  % Initial Position
-    deg2rad([0, 0, 0, 0, 0, 0]);  % Initial Position
-    deg2rad([0, 0, 0, 0, 0, 0]);  % Initial Position
-    deg2rad([0, 0, 0, 0, 0, 0]);  % Initial Position
-    deg2rad([0, 0, 0, 0, 0, 0]);  % Initial Position
     deg2rad([0, -72, 101, 0, 108, 0]);            % Fold position
     deg2rad([-115, -72, 101, 0, 108, 0]);          % Rotate to cup
-    deg2rad([-187, -72, 101, 0, 108, 0]);       % Rotate and drop the cup
+    deg2rad([-187, -72, 101, 0, 108, 0]);       % Rotate and go down
     deg2rad([-187, -43.2, 57.6, 0, 108, 0]);     % Stretch towards cup placement
-    deg2rad([-187, -72, 101, 0, 108, 0]);       % Rotate and drop the cup
-    deg2rad([-115, -72, 101, 0, 108, 0]);          % Rotate to cup
-    deg2rad([0, -10, 7.2, 0, 93.6, 0]);         % Place Cup
-    deg2rad([0, -10, 7.2, 0, 93.6, 0]);         % Place Cup
-    deg2rad([0, -10, 7.2, 0, 93.6, 0]);         % Place Cup
-    deg2rad([0, -10, 7.2, 0, 93.6, 0]);         % Place Cup
+    deg2rad([-187, -72, 101, 0, 108, 0]);       %  grab up
+    deg2rad([-115, -72, 101, 0, 108, 0]);          % Rotate 
     deg2rad([0, -10, 7.2, 0, 93.6, 0]);         % Place Cup
     deg2rad([0, 0, 0, 0, 0, 0]);                % Return to home position
 ];

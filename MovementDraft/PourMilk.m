@@ -28,6 +28,7 @@ qWaypoints2 = [
     deg2rad([151, -72.0, 137, -158, 0, 0]);    % Rotate
     deg2rad([115, -38.0, 108, -173, 0, 0]);    % Get in position
     deg2rad([140, -16.4, 50.2, -130, 0, 0]);   % Put at initial jug position
+    
     deg2rad([115, -38.0, 108, -173, 0, 0]);    % Get in position again
     deg2rad([115, -59.6, 144, -173, 0, 0]);    % Fold
     deg2rad([0, -59.6, 144, -173, 0, 0]);      % Rotate
