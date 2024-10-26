@@ -290,7 +290,7 @@ classdef BrewbotMovements
 
 
     methods
-        function obj = BrewbotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, portafilter, arduinoObj)
+        function obj = BrewbotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoObj)
             % Constructor to initialize the class with robots and serial
             obj.nova2 = r_nova2;
             obj.ur3e = r_ur3e;
@@ -317,6 +317,8 @@ classdef BrewbotMovements
             obj.nova2Gripper = DualFingerGripper(); % Creating gripper for DobotNova2
             obj.attachGripperToRobot(obj.ur3eGripper, obj.ur3e); % Attaching gripper to UR3e
             obj.attachGripperToRobot(obj.nova2Gripper, obj.nova2); % Attaching gripper to DobotNova2
+
+            view(210, 15)
         end
         
         %% Stop robots when emergency button is pressed
@@ -350,7 +352,7 @@ classdef BrewbotMovements
         end
 
 
-        %% Method to move objects attahced to end-effector of robot
+        %% Method to move objects attached to end-effector of robot
         function moveObjects(~, object, qCurrent, robot, vertices)
             % Compute the end-effector transformation matrix
             tr = robot.model.fkine(qCurrent); 
@@ -375,10 +377,90 @@ classdef BrewbotMovements
         end
         
 
+        %% Robot's program execution
+        
+        % Function to handle receiving a new order
+        function handleOrder(obj, hObject)
+            handles = guidata(hObject);
+            disp("Received a new order: " + handles.order_list(end))
+            disp("Current list of orders: " + handles.order_list(:))
+            obj.updateOrderListDisplay(hObject)
+            
+
+            % Only start processing orders if not already brewing
+            if ~handles.isBrewing
+                handles.isBrewing = true;  % Set isBrewing to true in handles
+                guidata(hObject, handles); % Sync GUI data
+                obj.ProcessOrders(hObject);  % Start order processing
+            end
+        end
+        
+        % Processing orders - Calls for making drinks go here
+        % this function observes orders from GUI)
+        function ProcessOrders(obj, hObject)
+            handles = guidata(hObject);
+            orders = handles.order_list;
+
+            while ~isempty(orders)
+                order = orders(1);  % Get the first order
+                disp("Brewbot is making the order for " + order);  % Execute the order
+
+                % Process the order (espresso_test or other functions)
+                switch order
+                    case "Espresso"
+                        obj.espressoCreate(hObject);
+                    
+                    case "Flat white"
+                        disp("Here should be function for making Flat white")
+                        pause(5)
+
+                    case "Latte"
+                        obj.latteCreate(hObject)
+                        pause(5)
+
+                    case "Ice coffee"
+                        disp("Here should be function for making Ice coffee")
+                        pause(5)
+                        
+                    case "Tea"
+                        disp("Here should be function for making Tea")
+                        pause(5)
+                    
+                    otherwise
+                        disp("Invalid item ordered")
+
+                end
+                        
+                disp("Order is complete");
+
+                % Remove the processed order
+                handles = guidata(hObject);
+                handles.order_list(1) = [];
+                orders = handles.order_list;
+                guidata(hObject, handles);  % Update GUI data
+                obj.updateOrderListDisplay(hObject)
+                
+            end
+
+            % Set isBrewing to false only when all orders are processed
+            handles.isBrewing = false;
+            guidata(hObject, handles);  % Sync GUI data
+        end
+
+        function updateOrderListDisplay(~, hObject)
+            handles = guidata(hObject);
+
+            % Display first five orders (or fewer if less than 5 orders)
+            orderListText = "Orders: " + strjoin(handles.order_list(1:min(5, end)), ', ');
+            set(handles.ordersTxt, 'String', orderListText);  % Assuming txt_orderList is the display text field
+
+            guidata(hObject, handles);  % Save updates
+        end
+        
         %% Methods for drinks
         function espressoCreate(obj, hObject)
             % Function that creates an espresso drink.
-            obj.moveRobot(hObject, nova2Waypoints, obj.cup, vertices1, [], [], []);
+            obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, [], [], []);
         end
 
         function latteCreate(obj, hObject)
@@ -397,7 +479,7 @@ classdef BrewbotMovements
             % Portafilter to Grinder + Put Jug Below Frother
             nova2Waypoints = BrewbotMovements.PipetoGrinder();
             ur3eWaypoints = BrewbotMovements.PutJugBelowFrother();
-            obj.moveRobot(hObject, [],[],[], ur3eWaypoints, obj.milkJug, vertices2); 
+            obj.moveRobot(hObject, [],[],[], ur3eWaypoints, obj.milkJug, obj.milkJugVertices); 
             
             % Place Cup at Machine + Froth Milk
             nova2Waypoints = BrewbotMovements.PipetoMachine();
@@ -440,8 +522,8 @@ classdef BrewbotMovements
             obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints, [], []);
         end
 
-        function icedCoffeeCreate(obj, hObject)
-            % Function that creates an iced coffee drink.
+        function iceCoffeeCreate(obj, hObject)
+            % Function that creates an ice coffee drink.
 
         end
 

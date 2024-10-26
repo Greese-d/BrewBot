@@ -78,6 +78,9 @@ end
 % Create instance of movement class and inject robot objects and Arduino object
 handles.movement = BrewbotMovements(nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoBoard);
 
+%Uncomment for testmovements
+%handles.movement = BrewbotTestMovements(nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoBoard);
+
 % Create empty list of orders
 handles.order_list = strings(0);
 handles.isBrewing = false;
