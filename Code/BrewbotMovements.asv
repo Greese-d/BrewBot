@@ -1,4 +1,4 @@
-classdef BrewbotTestMovements
+classdef BrewbotMovements
     %This class is a collection of movements and helper functions to test
     %GUI's functionality
     
@@ -286,7 +286,7 @@ classdef BrewbotTestMovements
 
 
     methods
-        function obj = BrewbotTestMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoObj)
+        function obj = BrewbotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoObj)
             % Constructor to initialize the class with robots and serial
             obj.nova2 = r_nova2;
             obj.ur3e = r_ur3e;
@@ -367,15 +367,66 @@ classdef BrewbotTestMovements
         %% Methods for drinks
         function espressoCreate(obj, hObject)
             % Function that creates an espresso drink.
-            nova2Waypoints = GrabCup();
-            ur3eWaypoints = MovetoJug();
-            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints);
 
         end
 
         function latteCreate(obj, hObject)
             % Function that creates a latte drink.
 
+            % Grab cup + Move to milk jub movement
+            nova2Waypoints = BrewbotMovements.GrabCup();
+            ur3eWaypoints = BrewbotMovements.MovetoJug();
+            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints, [], []);
+            
+            % Place cup at machine + Grab Jug
+            nova2Waypoints = BrewbotMovements.PlaceCupatMachine();
+            ur3eWaypoints = BrewbotMovements.GrabJug();
+            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints, );
+            
+            % Portafilter to Grinder + Put Jug Below Frother
+            nova2Waypoints = BrewbotMovements.PipetoGrinder();
+            ur3eWaypoints = BrewbotMovements.PutJugBelowFrother();
+            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints);  
+            
+            % Place Cup at Machine + Froth Milk
+            nova2Waypoints = BrewbotMovements.PipetoMachine();
+            ur3eWaypoints = BrewbotMovements.FrothMilk();
+            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints);
+            
+            % Return Cup + FinishFrothing
+            nova2Waypoints = BrewbotMovements.ReturnCup();
+            ur3eWaypoints = BrewbotMovements.FinishFrothing();
+            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints);
+
+
+            nova2Waypoints = BrewbotMovements.ReturnPipe();
+            ur3eWaypoints = BrewbotMovements.PickUpJug();
+            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints);
+
+
+            nova2Waypoints = BrewbotMovements.MovetoLid();
+            ur3eWaypoints = BrewbotMovements.PlaceJugBack();
+            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints);
+
+
+            nova2Waypoints = BrewbotMovements.GrabLid();
+            ur3eWaypoints = BrewbotMovements.ReturnBackafterPouring();
+            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints);
+
+
+            nova2Waypoints = BrewbotMovements.ReturnNova2();
+            ur3eWaypoints = BrewbotMovements.MovetoFinishedCup();
+            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints);
+
+            
+            nova2Waypoints = BrewbotMovements.ReturnNova2();
+            ur3eWaypoints = BrewbotMovements.PickUpFinishedCup();
+            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints);
+
+
+            nova2Waypoints = BrewbotMovements.ReturnNova2();
+            ur3eWaypoints = BrewbotMovements.ReturnUR3e();
+            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints);
         end
 
         function icedCoffeeCreate(obj, hObject)
@@ -393,7 +444,7 @@ classdef BrewbotTestMovements
 
         %% Helper function to move robot to desired location specified by qMatrix
         % Checks if e-stop was initiated and does not move robot if triggered
-        function moveRobot(obj, hObject, nova2Waypoints, ur3eWaypoints)
+        function moveRobot(obj, hObject, nova2Waypoints, ur3eWaypoints, nova2MovedObject,ur3eMovedObject)
 
             nova2QMatrix = InterpolateWaypointRadians(nova2Waypoints, deg2rad(3));
             ur3eQMatrix = InterpolateWaypointRadians(ur3eWaypoints, deg2rad(5)); 
@@ -410,9 +461,12 @@ classdef BrewbotTestMovements
 
                 % Move DobotNova2 (robot1)
                 if i <= size(nova2QMatrix, 1)
-                    
-                    %obj.moveObjects(obj.milkJug, qMatrix2(i, :), obj.nova2);
-                    obj.attachGripperToRobot(obj.nova2Gripper, obj.nova2);
+
+                    if ~isempty(nova2MovedObject)
+                        obj.moveObjects(nova2MovedObject, qMatrix2(i, :), obj.nova2);
+                    end
+
+                    %obj.attachGripperToRobot(obj.nova2Gripper, obj.nova2);
 
                     obj.nova2.model.animate(nova2QMatrix(i, :));  % Animate DobotNova2
                 else
@@ -422,7 +476,12 @@ classdef BrewbotTestMovements
                 % Move UR3e (robot2)
                 if i <= size(ur3eQMatrix, 1)
                     
-                    obj.attachGripperToRobot(obj.ur3eGripper, obj.ur3e);
+                    %obj.attachGripperToRobot(obj.ur3eGripper, obj.ur3e);
+                    
+                    if ~isempty(ur3eMovedObject) 
+                        obj.moveObjects(ur3eMovedObject, qMatrix2(i, :), obj.ur3e);
+                    end
+
                     obj.ur3e.model.animate(ur3eQMatrix(i, :));  % Animate UR3e
                 else
                     obj.ur3e.model.animate(ur3eQMatrix(end, :));  % Hold last position

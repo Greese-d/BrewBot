@@ -77,7 +77,7 @@ catch
 end
 
 % Create instance of movement class and inject robot objects and Arduino object
-handles.movement = BrewbotTestMovements(nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoBoard);
+handles.movement = BrewbotMovements(nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoBoard);
 
 handles.isStopped = false; % flag for e-stop, set to false initially
 set(handles.btn_reset, "Enable", "off"); % deactivate reset button
@@ -108,7 +108,7 @@ function btn_espresso_Callback(hObject, eventdata, handles)
 
 %Execture espresso-making function
 disp("Making espresso")
-handles.movement.espresso_test(hObject); %test function for simple movement
+handles.movement.espressoCreate(hObject); %test function for simple movement
 
 
 
@@ -128,7 +128,7 @@ function btn_latte_Callback(hObject, eventdata, handles)
 
 %Execute latte-making function
 disp("Making latte")
-handles.movement.latte_test(hObject); %test function for simple movement
+handles.movement.latteCreate(hObject); %test function for simple movement
 
 
 % --- Executes on button press in btn_icecoffee.
