@@ -57,10 +57,71 @@ classdef BrewbotTestMovements
                     % If there's an error reading the Arduino, you might choose to set stop = true
                     % stop = true;  % Uncomment if you want to stop the process in case of an Arduino error
                 end
-            else
-                disp("Arduino object is not initialized or connected.");
             end
         end
+
+        % Function to handle receiving a new order
+        function handleOrder(obj, hObject)
+            handles = guidata(hObject);
+            disp("Received a new order: " + handles.order_list(end))
+            disp("Current list of orders: " + handles.order_list(:))
+
+            % Only start processing orders if not already brewing
+            if ~handles.isBrewing
+                handles.isBrewing = true;  % Set isBrewing to true in handles
+                guidata(hObject, handles); % Sync GUI data
+                obj.ProcessOrders(hObject);  % Start order processing
+            end
+        end
+
+        % Processing orders - Calls for making drinks go here
+        % this function observes orders from GUI)
+        function ProcessOrders(obj, hObject)
+            handles = guidata(hObject);
+            orders = handles.order_list;
+
+            while ~isempty(orders)
+                order = orders(1);  % Get the first order
+                disp("Brewbot is making the order for " + order);  % Execute the order
+
+                % Process the order (espresso_test or other functions)
+                switch order
+                    case "Espresso"
+                        obj.espresso_test(hObject);
+                    
+                    case "Flat white"
+                        disp("Here should be function for making Flat white")
+
+                    case "Latte"
+                        disp("Here should be function for making Latte")
+
+                    case "Ice coffee"
+                        disp("Here should be function for making Ice coffee")
+                        
+                    case "Tea"
+                        disp("Here should be function for making Tea")
+                    
+                    otherwise
+                        disp("Invalid item ordered")
+
+                end
+                        
+        
+                disp("Order is complete");
+
+                % Remove the processed order
+                handles = guidata(hObject);
+                handles.order_list(1) = [];
+                orders = handles.order_list;
+                guidata(hObject, handles);  % Update GUI data
+            end
+
+            % Set isBrewing to false only when all orders are processed
+            handles.isBrewing = false;
+            guidata(hObject, handles);  % Sync GUI data
+        end
+
+        
 
         function espresso_test(obj, hObject)
         % Movement for DobotNova2 (robot1)
@@ -131,15 +192,15 @@ classdef BrewbotTestMovements
             end
     
             % Pause briefly to simulate real-time animation
-            pause(0.05);
+            pause(0.01);
         end
     end
         
-        function MoveObjects(obj, ~, qCurrent)
-            tr = obj.nova2.model.fkine(qCurrent); 
-            vertices = get(obj.cup1, 'Vertices'); 
+    function MoveObjects(obj, object_h, qCurrent, robot)
+            tr = robot.model.fkine(qCurrent); 
+            vertices = get(object_h, 'Vertices'); 
             transformedVertices = [vertices, ones(size(vertices, 1), 1)] * tr.T;
-            set(obj.cup1, 'Vertices', transformedVertices(:, 1:3));  
+            set(object_h, 'Vertices', transformedVertices(:, 1:3));  
         end
 
 
@@ -219,7 +280,7 @@ classdef BrewbotTestMovements
                 % Move DobotNova2 (robot1)
                 if i <= size(qMatrix1, 1)
                     
-                    MoveObjects(qMatrix1(i, :));
+                    MoveObjects(obj, obj.cup1, qMatrix1(i, :), obj.nova2);
                     
                     obj.nova2.model.animate(qMatrix1(i, :));  % Animate DobotNova2
                 else

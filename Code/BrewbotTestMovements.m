@@ -60,11 +60,82 @@ classdef BrewbotTestMovements
             end
         end
 
+        % Function to handle receiving a new order
         function handleOrder(obj, hObject)
             handles = guidata(hObject);
-            disp(handles.order_list)
+            disp("Received a new order: " + handles.order_list(end))
+            disp("Current list of orders: " + handles.order_list(:))
+            obj.updateOrderListDisplay(hObject)
+            
 
+            % Only start processing orders if not already brewing
+            if ~handles.isBrewing
+                handles.isBrewing = true;  % Set isBrewing to true in handles
+                guidata(hObject, handles); % Sync GUI data
+                obj.ProcessOrders(hObject);  % Start order processing
+            end
+        end
 
+        % Processing orders - Calls for making drinks go here
+        % this function observes orders from GUI)
+        function ProcessOrders(obj, hObject)
+            handles = guidata(hObject);
+            orders = handles.order_list;
+
+            while ~isempty(orders)
+                order = orders(1);  % Get the first order
+                disp("Brewbot is making the order for " + order);  % Execute the order
+
+                % Process the order (espresso_test or other functions)
+                switch order
+                    case "Espresso"
+                        obj.espresso_test(hObject);
+                    
+                    case "Flat white"
+                        disp("Here should be function for making Flat white")
+                        pause(5)
+
+                    case "Latte"
+                        disp("Here should be function for making Latte")
+                        pause(5)
+
+                    case "Ice coffee"
+                        disp("Here should be function for making Ice coffee")
+                        pause(5)
+                        
+                    case "Tea"
+                        disp("Here should be function for making Tea")
+                        pause(5)
+                    
+                    otherwise
+                        disp("Invalid item ordered")
+
+                end
+                        
+                disp("Order is complete");
+
+                % Remove the processed order
+                handles = guidata(hObject);
+                handles.order_list(1) = [];
+                orders = handles.order_list;
+                guidata(hObject, handles);  % Update GUI data
+                obj.updateOrderListDisplay(hObject)
+                
+            end
+
+            % Set isBrewing to false only when all orders are processed
+            handles.isBrewing = false;
+            guidata(hObject, handles);  % Sync GUI data
+        end
+
+        function updateOrderListDisplay(~, hObject)
+            handles = guidata(hObject);
+
+            % Display first five orders (or fewer if less than 5 orders)
+            orderListText = "Orders: " + strjoin(handles.order_list(1:min(5, end)), ', ');
+            set(handles.ordersTxt, 'String', orderListText);  % Assuming txt_orderList is the display text field
+
+            guidata(hObject, handles);  % Save updates
         end
 
         

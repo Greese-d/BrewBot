@@ -22,7 +22,7 @@ function varargout = BrewbotGUI(varargin)
 
 % Edit the above text to modify the response to help BrewbotGUI
 
-% Last Modified by GUIDE v2.5 15-Oct-2024 12:42:53
+% Last Modified by GUIDE v2.5 26-Oct-2024 23:03:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -72,7 +72,7 @@ catch
     disp('Error: Unable to connect to Arduino.');
 end
 
- % Initialize Robot Models
+ % Initialize Robot Models and Environment objects
 [nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup; % create environment, stash robot objects
 
 % Create instance of movement class and inject robot objects and Arduino object
@@ -80,15 +80,13 @@ handles.movement = BrewbotTestMovements(nova2, ur3e, cup, cupLid, milkJug, iceCu
 
 % Create empty list of orders
 handles.order_list = strings(0);
+handles.isBrewing = false;
 
 handles.isStopped = false; % flag for e-stop, set to false initially
 set(handles.btn_reset, "Enable", "off"); % deactivate reset button
 
 % Update handles structure
 guidata(hObject, handles);
-
-% UIWAIT makes BrewbotGUI wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
 
 
 % --- Outputs from this function are returned to the command line.
@@ -104,12 +102,7 @@ varargout{1} = handles.output;
 
 % --- Executes on button press in btn_espresso.
 function btn_espresso_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_espresso (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-%Execture espresso-making function
-disp("Making espresso")
+% Add Espresso to list of orders
 handles.order_list(end+1) = "Espresso";
 guidata(hObject, handles);
 handles.movement.handleOrder(hObject);
@@ -118,10 +111,7 @@ handles.movement.handleOrder(hObject);
 
 % --- Executes on button press in btn_flatwhite.
 function btn_flatwhite_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_flatwhite (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-disp("Making flat white")
+% Add Flat white to list of orders
 handles.order_list(end+1) = "Flat white";
 guidata(hObject, handles);
 handles.movement.handleOrder(hObject);
@@ -129,12 +119,7 @@ handles.movement.handleOrder(hObject);
 
 % --- Executes on button press in btn_latte.
 function btn_latte_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_latte (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-%Execute latte-making function
-disp("Making latte")
+% Add Latte to list of orders
 handles.order_list(end+1) = "Latte";
 guidata(hObject, handles);
 handles.movement.handleOrder(hObject);
@@ -142,10 +127,7 @@ handles.movement.handleOrder(hObject);
 
 % --- Executes on button press in btn_icecoffee.
 function btn_icecoffee_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_icecoffee (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-disp("Making iced coffee")
+% Add Ice coffee to list of orders
 handles.order_list(end+1) = "Ice coffee";
 guidata(hObject, handles);
 handles.movement.handleOrder(hObject);
@@ -153,10 +135,7 @@ handles.movement.handleOrder(hObject);
 
 % --- Executes on button press in btn_tea.
 function btn_tea_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_tea (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-disp("Making tea")
+% Add Tea to list of orders
 handles.order_list(end+1) = "Tea";
 guidata(hObject, handles);
 handles.movement.handleOrder(hObject);
@@ -164,9 +143,6 @@ handles.movement.handleOrder(hObject);
 
 % --- Executes on button press in btn_emstop.
 function btn_emstop_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_emstop (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
 % Changes e-stop flag to true
 disp("Emergency stop")
@@ -180,27 +156,21 @@ set(handles.btn_latte, "Enable", "off")
 set(handles.btn_icecoffee, "Enable", "off")
 set(handles.btn_tea, "Enable", "off")
 
-% Enables reset button
+% Enable reset button
 set(handles.btn_reset, "Enable", "on");
 
 
 % --- Executes on button press in btn_close.
 function btn_close_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_close (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 disp("Request to close GUI")
 close
 
 
 % --- Executes on button press in btn_reset.
 function btn_reset_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_reset (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+
 handles.isStopped = false;
-
-
+% Bring Brewbot to default position
 handles.movement.resetRobots();
 guidata(hObject, handles);
 
@@ -215,4 +185,27 @@ set(handles.btn_tea, "Enable", "on");
 set(handles.btn_reset, "Enable", "off");
 
 disp("System reset to default state.");
+
+
+
+function ordersTxt_Callback(hObject, eventdata, handles)
+% hObject    handle to ordersTxt (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of ordersTxt as text
+%        str2double(get(hObject,'String')) returns contents of ordersTxt as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function ordersTxt_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ordersTxt (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 
