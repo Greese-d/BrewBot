@@ -338,15 +338,19 @@ classdef BrewbotMovements
 
 
         %% Method to move objects attahced to end-effector of robot
-        function moveObjects(~, object, qCurrent, robot, vertices)
+        function moveObjects(~, object, qCurrent, robot)
             % Compute the end-effector transformation matrix
             tr = robot.model.fkine(qCurrent); 
 
             % Transform the object's vertices only relative to the current end-effector position
             % Use the transformation matrix 'tr' directly to compute the new vertices
-
+            vertices = get(object, 'Vertices'); 
+            disp("Vertices")
+            disp(vertices);
             % Transform the vertices using the new end-effector pose
-            transformedVertices = [vertices,ones(size(vertices,1),1)] * tr.T';
+            transformedVertices = [vertices, ones(size(vertices, 1), 1)] * tr.T;
+            disp("transformed Vertices")
+            disp( transformedVertices);
             % Update the object's vertices
             set(object, 'Vertices', transformedVertices(:, 1:3));
         end
@@ -379,11 +383,7 @@ classdef BrewbotMovements
             % Place cup at machine + Grab Jug
             nova2Waypoints = BrewbotMovements.PlaceCupatMachine();
             ur3eWaypoints = BrewbotMovements.GrabJug();
-
-            vertices1 = get(obj.milkJug, 'Vertices'); 
-            vertices2 = get(obj.cup, 'Vertices'); 
-
-            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints, obj.milkJug, obj.cup, vertices1, vertices2);
+            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints, obj.milkJug, obj.cup);
             
             % Portafilter to Grinder + Put Jug Below Frother
             nova2Waypoints = BrewbotMovements.PipetoGrinder();
@@ -446,7 +446,7 @@ classdef BrewbotMovements
 
         %% Helper function to move robot to desired location specified by qMatrix
         % Checks if e-stop was initiated and does not move robot if triggered
-        function moveRobot(obj, hObject, nova2Waypoints, ur3eWaypoints, nova2MovedObject, ur3eMovedObject, vertices1, vertices2)
+        function moveRobot(obj, hObject, nova2Waypoints, ur3eWaypoints, nova2MovedObject,ur3eMovedObject)
 
             nova2QMatrix = InterpolateWaypointRadians(nova2Waypoints, deg2rad(3));
             ur3eQMatrix = InterpolateWaypointRadians(ur3eWaypoints, deg2rad(5)); 
@@ -465,7 +465,7 @@ classdef BrewbotMovements
                 if i <= size(nova2QMatrix, 1)
 
                     if ~isempty(nova2MovedObject)
-                        obj.moveObjects(nova2MovedObject, nova2QMatrix(i, :), obj.nova2, vertices1);
+                        obj.moveObjects(nova2MovedObject, nova2QMatrix(i, :), obj.nova2);
                     end
 
                     %obj.attachGripperToRobot(obj.nova2Gripper, obj.nova2);
@@ -480,7 +480,7 @@ classdef BrewbotMovements
                     %obj.attachGripperToRobot(obj.ur3eGripper, obj.ur3e);
                     
                     if ~isempty(ur3eMovedObject) 
-                        obj.moveObjects(ur3eMovedObject, ur3eQMatrix(i, :), obj.ur3e, vertices2);
+                        obj.moveObjects(ur3eMovedObject, ur3eQMatrix(i, :), obj.ur3e);
                     end
 
                     obj.ur3e.model.animate(ur3eQMatrix(i, :));  % Animate UR3e
