@@ -1,4 +1,4 @@
-function varargout = BrewbotGUI(varargin)
+function varargout = BrewbotGUI2(varargin)
 % BREWBOTGUI MATLAB code for BrewbotGUI.fig
 %      BREWBOTGUI, by itself, creates a new BREWBOTGUI or raises the existing
 %      singleton*.
@@ -76,7 +76,7 @@ end
 [nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup; % create environment, stash robot objects
 
 % Create instance of movement class and inject robot objects and Arduino object
-handles.movement = BrewbotTestMovements(nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoBoard);
+handles.movement = BrewbotTestMovements2(nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoBoard);
 
 % Create empty list of orders
 handles.order_list = strings(0);
@@ -111,9 +111,7 @@ function btn_espresso_Callback(hObject, eventdata, handles)
 %Execture espresso-making function
 disp("Making espresso")
 handles.order_list(end+1) = "Espresso";
-guidata(hObject, handles);
 handles.movement.handleOrder(hObject);
-
 
 
 % --- Executes on button press in btn_flatwhite.
@@ -121,9 +119,8 @@ function btn_flatwhite_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_flatwhite (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-disp("Making flat white")
+disp("Making flat white new")
 handles.order_list(end+1) = "Flat white";
-guidata(hObject, handles);
 handles.movement.handleOrder(hObject);
 
 
@@ -136,7 +133,6 @@ function btn_latte_Callback(hObject, eventdata, handles)
 %Execute latte-making function
 disp("Making latte")
 handles.order_list(end+1) = "Latte";
-guidata(hObject, handles);
 handles.movement.handleOrder(hObject);
 
 
@@ -147,7 +143,6 @@ function btn_icecoffee_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 disp("Making iced coffee")
 handles.order_list(end+1) = "Ice coffee";
-guidata(hObject, handles);
 handles.movement.handleOrder(hObject);
 
 
@@ -158,7 +153,6 @@ function btn_tea_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 disp("Making tea")
 handles.order_list(end+1) = "Tea";
-guidata(hObject, handles);
 handles.movement.handleOrder(hObject);
 
 

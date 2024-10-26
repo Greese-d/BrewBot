@@ -1,4 +1,4 @@
-classdef BrewbotTestMovements
+classdef BrewbotTestMovements2
     %This class is a collection of movements and helper functions to test
     %GUI's functionality
     
@@ -16,7 +16,7 @@ classdef BrewbotTestMovements
     end
     
     methods
-       function obj = BrewbotTestMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoObj)
+       function obj = BrewbotTestMovements2(r_nova2, r_ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoObj)
             % Constructor to initialize the class with robots and serial
             obj.nova2 = r_nova2;
             obj.ur3e = r_ur3e;
@@ -64,10 +64,7 @@ classdef BrewbotTestMovements
             handles = guidata(hObject);
             disp(handles.order_list)
 
-
         end
-
-        
 
         function espresso_test(obj, hObject)
         % Movement for DobotNova2 (robot1)
