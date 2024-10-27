@@ -395,7 +395,7 @@ classdef BrewBotMovements
             % Use the transformation matrix 'tr' directly to compute the new vertices
 
             % Transform the vertices using the new end-effector pose
-            transformedVertices = [vertices,ones(size(vertices,1),1)] * (tr.T * trotx(pi/2) * troty(-pi/2) * transl(0, 0.1, 0))';
+            transformedVertices = [vertices,ones(size(vertices,1),1)] * (tr.T * trotx(pi/2) * troty(-pi/2) * transl(0, 0.05, 0))';
             % Update the object's vertices
             set(object, 'Vertices', transformedVertices(:, 1:3));
         end
@@ -632,7 +632,7 @@ classdef BrewBotMovements
                 
                 drawnow();
                 % Pause briefly to simulate real-time animation
-                pause(0.025);
+                pause(0.03);
             end
         end
 
