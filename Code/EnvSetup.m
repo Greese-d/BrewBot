@@ -77,7 +77,6 @@ classdef EnvSetup
             if ishandle(obj.cup), delete(obj.cup); end
             if ishandle(obj.cupLid), delete(obj.cupLid); end
             if ishandle(obj.milkJug), delete(obj.milkJug); end
-            if ishandle(obj.iceCube), delete(obj.iceCube); end
             if ishandle(obj.portafilter), delete(obj.portafilter); end
             
             % Create new instances of movable objects
