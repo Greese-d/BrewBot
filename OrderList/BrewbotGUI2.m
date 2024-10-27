@@ -1,4 +1,4 @@
-function varargout = BrewbotGUI(varargin)
+function varargout = BrewbotGUI2(varargin)
 % BREWBOTGUI MATLAB code for BrewbotGUI.fig
 %      BREWBOTGUI, by itself, creates a new BREWBOTGUI or raises the existing
 %      singleton*.
@@ -55,11 +55,34 @@ function BrewbotGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for BrewbotGUI
 handles.output = hObject;
 
- % Initialize Robot Model
-[nova2, ur3e] = EnvSetup;
-handles.movement = BrewbotTestMovements(nova2, ur3e);
+try
+    availablePorts = serialportlist; % Get list of available serial ports
+    if ismember('COM4', availablePorts) % Replace 'COM4' with the correct port for Arduino
+        arduinoBoard = arduino('COM4', 'Uno', 'Libraries', 'Servo');  % Arduino is connected
+        handles.isArduinoConnected = true;
+        disp('Arduino connected successfully.');
+    else
+        handles.isArduinoConnected = false;
+        arduinoBoard = [];
+        disp('Arduino not connected.');
+    end
+catch
+    handles.isArduinoConnected = false;
+    arduinoBoard = [];
+    disp('Error: Unable to connect to Arduino.');
+end
 
-handles.isStopped = false;
+ % Initialize Robot Models
+[nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup; % create environment, stash robot objects
+
+% Create instance of movement class and inject robot objects and Arduino object
+handles.movement = BrewbotTestMovements2(nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoBoard);
+
+% Create empty list of orders
+handles.order_list = strings(0);
+
+handles.isStopped = false; % flag for e-stop, set to false initially
+set(handles.btn_reset, "Enable", "off"); % deactivate reset button
 
 % Update handles structure
 guidata(hObject, handles);
@@ -84,12 +107,11 @@ function btn_espresso_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_espresso (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-set(hObject, 'Interruptible', 'on');
 
+%Execture espresso-making function
 disp("Making espresso")
-handles.movement.espresso_test2(hObject);
-guidata(hObject, handles)
-
+handles.order_list(end+1) = "Espresso";
+handles.movement.handleOrder(hObject);
 
 
 % --- Executes on button press in btn_flatwhite.
@@ -97,7 +119,9 @@ function btn_flatwhite_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_flatwhite (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-disp("Making flat white")
+disp("Making flat white new")
+handles.order_list(end+1) = "Flat white";
+handles.movement.handleOrder(hObject);
 
 
 % --- Executes on button press in btn_latte.
@@ -105,8 +129,11 @@ function btn_latte_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_latte (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+%Execute latte-making function
 disp("Making latte")
-latte_test(handles.nova2)
+handles.order_list(end+1) = "Latte";
+handles.movement.handleOrder(hObject);
 
 
 % --- Executes on button press in btn_icecoffee.
@@ -115,6 +142,8 @@ function btn_icecoffee_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 disp("Making iced coffee")
+handles.order_list(end+1) = "Ice coffee";
+handles.movement.handleOrder(hObject);
 
 
 % --- Executes on button press in btn_tea.
@@ -123,6 +152,8 @@ function btn_tea_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 disp("Making tea")
+handles.order_list(end+1) = "Tea";
+handles.movement.handleOrder(hObject);
 
 
 % --- Executes on button press in btn_emstop.
@@ -131,15 +162,20 @@ function btn_emstop_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% Changes e-stop flag to true
 disp("Emergency stop")
 handles.isStopped = true;
 guidata(hObject, handles);
 
+% Disables menu options buttons
 set(handles.btn_espresso, "Enable", "off")
 set(handles.btn_flatwhite, "Enable", "off")
 set(handles.btn_latte, "Enable", "off")
 set(handles.btn_icecoffee, "Enable", "off")
 set(handles.btn_tea, "Enable", "off")
+
+% Enables reset button
+set(handles.btn_reset, "Enable", "on");
 
 
 % --- Executes on button press in btn_close.
@@ -157,14 +193,20 @@ function btn_reset_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.isStopped = false;
+
+
+handles.movement.resetRobots();
 guidata(hObject, handles);
 
-% Enable buttons again
+% Enable menu options buttons again
 set(handles.btn_espresso, "Enable", "on");
 set(handles.btn_flatwhite, "Enable", "on");
 set(handles.btn_latte, "Enable", "on");
 set(handles.btn_icecoffee, "Enable", "on");
 set(handles.btn_tea, "Enable", "on");
+
+% Disable reset buttons
+set(handles.btn_reset, "Enable", "off");
 
 disp("System reset to default state.");
 
