@@ -71,12 +71,9 @@ function BrewbotGUI_OpeningFcn(hObject, eventdata, handles, varargin)
         arduinoBoard = [];
         disp('Error: Unable to connect to Arduino.');
     end
-
+    
     % Initialize the Environment class
-    env = EnvSetup();
-
-    % Initialize the Environment class
-    handles.env = env;
+    env = Environment();
     
     % Access environment objects
     nova2 = env.nova2;
@@ -180,14 +177,9 @@ function btn_close_Callback(hObject, eventdata, handles)
 % --- Executes on button press in btn_reset.
 function btn_reset_Callback(hObject, eventdata, handles)
     handles.isStopped = false;
-    
-    % Reset movable objects in the environment
-    if isfield(handles, 'env') && ~isempty(handles.env)
-        handles.env = handles.env.initialEnvironment();  % Call the reset method
-    end
-    
     % Bring Brewbot to default position
     handles.movement.resetRobots();
+    
     guidata(hObject, handles);
     
     % Enable menu options buttons again

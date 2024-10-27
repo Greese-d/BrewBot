@@ -564,6 +564,36 @@ classdef BrewBotMovements
         % (specified in class properties)
         function resetRobots(obj)
             n = 60;  % Amount of steps
+            
+            % Reverse the Q-matrices for both robots
+            reversedNova2QMatrix = flipud(obj.nova2QMatrix);
+            reversedUr3eQMatrix = flipud(obj.ur3eQMatrix);
+
+            disp('reversedNova2QMatrix');
+            disp(reversedNova2QMatrix);
+            disp('nova2QMatrix');
+            disp(obj.nova2QMatrix);
+        
+            % Animate the reversed motion
+            steps = max(size(reversedNova2QMatrix, 1), size(reversedUr3eQMatrix, 1));
+            
+            for i = 1 : steps
+                % Move DobotNova2 robot
+                if i <= size(reversedNova2QMatrix, 1)
+                    obj.nova2.model.animate(reversedNova2QMatrix(i, :));
+                else
+                    obj.nova2.model.animate(reversedNova2QMatrix(end, :));
+                end
+        
+                % Move UR3e robot
+                if i <= size(reversedUr3eQMatrix, 1)
+                    obj.ur3e.model.animate(reversedUr3eQMatrix(i, :));
+                else
+                    obj.ur3e.model.animate(reversedUr3eQMatrix(end, :));
+                end
+                
+                pause(0.01);
+            end
 
                     
             q0_nova2 = obj.nova2.model.getpos();

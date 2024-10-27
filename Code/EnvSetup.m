@@ -1,53 +1,94 @@
-function [nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup
-    hold on;  % Hold the current plot for multiple objects
-    axis equal;  % Maintain equal scaling for all axes
-    axis([-1.8 1.8 -1.8 1.8 -0.1 1.5]);  % Set the axis limits
-    view(210, 15)
+classdef EnvSetup
+    properties
+        % Define properties for each environment object
+        nova2;
+        ur3e;
+        cup;
+        cupLid;
+        milkJug;
+        iceCube;
+        portafilter;
+        
+        % Non-movable objects
+        espressoMachine;
+        grinder;
+        iceCubeDispenser;
+        milkDispenser;
+        table;
+        
+        % Axes and view settings
+        axisLimits;
+        viewAngles;
+    end
     
-    %% Initial coordinates to move the environemnt along 3 axis
-    x = 0.2;
-    y = 0;
-    z = 0;
-    
-    %% Placing environment images
-    %imageData = imread('WallPicture1.jpg');
-    %wallImage1 = imrotate(imageData, -90);
-    %imageData = imread('WallPicture2.jpg');
-    %wallImage2 = imrotate(imageData, -90);
-    %surf([-1.8,-1.8;1.8,1.8],[1.8,1.8;1.8,1.8],[0,2;0,2],'CData',wallImage1,'FaceColor','texturemap');
-    %surf([1.8,1.8;1.8,1.8],[-1.8,-1.8;1.8,1.8],[0,2;0,2],'CData',wallImage2,'FaceColor','texturemap');
-    
-    surf([-2,-2;2,2],[-2,2;-2,2],[0,0;0,0],'CData',imread('FloorImage.jpg'),'FaceColor','texturemap');
-    
-    
-    %% Non-movable objects
-    espressoMachine = PlaceObject('EspressoMachine.ply', [x+0.25, y-0.5, z+0.65]); % add espresso machine model
-    grinder = PlaceObject('Grinder.ply', [x+0.8, y-0.2, z+0.65]); % add coffee grinder model
-    iceCubeDispenser = PlaceObject('IceCubeDispenser.ply', [x-0.65, y-0.55, z+0.65]); % add ice cube dispenser model
-    milkDispenser = PlaceObject('MilkDispenser.ply', [x-0.3, y-0.25, z+0.66]); % add milk dispenser model
-    table = PlaceObject('Table.ply', [x+0, y+0, z+0.4]); % add table
-    
-    %% Can be commented to remove the booth from environment for better view
-    %coffeeBooth = PlaceObject('CoffeeBooth.ply', [x-1.3, y-0.6, z+0]); % add coffee booth model
-    
-    
-    %% Movable objects
-    cup = PlaceObject('Cup.ply', [x-0.1, y+0.3, z+0.65]); % add coffee cup model
-    
-    cupLid = PlaceObject('CupLid.ply', [x+0.1, y+0.3, z+0.65]); % add coffee lid model
-    
-    % cupWithLid = PlaceObject('CupWithLid.ply', [x-0.1, y+0.15, z+0.65]); % add cup with lid model
-    milkJug = PlaceObject('MilkJug.ply', [x+0.1, y+0.15, z+0.65]); % add milk jug model
-    
-    iceCube = PlaceObject('IceCube.ply', [x+0, y+0.5, z+0]); % add ice cube model
-    portafilter = PlaceObject('EspressoHandle.ply', [x+0, y+0.4, z+0.7]); % add portafilter model (coffee handle)
-    
-    
-    %% Adding DobotNova2 robot to the environment 
-    disp('Adding DobotNova2 robot to the environment');
-    nova2 = DobotNova2(transl(x+0.6, y+0.3, z+0.6));  % Create Nova2 robot with initial transform
-    
-    disp('Adding UR3e robot to the environment');
-    ur3e = UR3e(transl(x-0.6, y+0.3, z+0.6));   % Create UR3e robot with intial transform
+    methods
+        function obj = EnvSetup()
+            % Constructor method that sets up the environment
+            obj = obj.setupEnvironment();
+        end
+        
+        function obj = setupEnvironment(obj)
+            % This function sets up the environment, replacing the old EnvSetup function
+            
+            hold on;  % Hold the current plot for multiple objects
+            axis equal;  % Maintain equal scaling for all axes
+            obj.axisLimits = [-1.8 1.8 -1.8 1.8 -0.1 1.5];
+            axis(obj.axisLimits);  % Set the axis limits
+            obj.viewAngles = [210, 15];
+            view(obj.viewAngles);
+            
+            %% Initial coordinates to move the environment along 3 axes
+            x = 0.2;
+            y = 0;
+            z = 0;
+            
+            %% Placing environment images (optional)
+            % Add images as needed here
+            
+            surf([-2,-2;2,2],[-2,2;-2,2],[0,0;0,0],'CData',imread('FloorImage.jpg'),'FaceColor','texturemap');
+            
+            %% Non-movable objects setup
+            obj.espressoMachine = PlaceObject('EspressoMachine.ply', [x+0.25, y-0.5, z+0.65]);
+            obj.grinder = PlaceObject('Grinder.ply', [x+0.8, y-0.2, z+0.65]);
+            obj.iceCubeDispenser = PlaceObject('IceCubeDispenser.ply', [x-0.65, y-0.55, z+0.65]);
+            obj.milkDispenser = PlaceObject('MilkDispenser.ply', [x-0.3, y-0.25, z+0.66]);
+            obj.table = PlaceObject('Table.ply', [x+0, y+0, z+0.4]);
+            
+            % Initialize the movable objects
+            obj = obj.initialEnvironment();
+            
+            %% Adding DobotNova2 and UR3e robots to the environment
+            disp('Adding DobotNova2 robot to the environment');
+            obj.nova2 = DobotNova2(transl(x+0.6, y+0.3, z+0.6));
+            
+            disp('Adding UR3e robot to the environment');
+            obj.ur3e = UR3e(transl(x-0.6, y+0.3, z+0.6));
+        end
+        
+        function obj = initialEnvironment(obj)
+            % Method to reset movable objects to their initial positions
+            % Deletes previous objects if they exist and recreates them
+            
+            % Initial coordinates to reset the environment objects
+            x = 0.2;
+            y = 0;
+            z = 0;
+            
+            % Delete previous objects if they exist
+            if ishandle(obj.cup), delete(obj.cup); end
+            if ishandle(obj.cupLid), delete(obj.cupLid); end
+            if ishandle(obj.milkJug), delete(obj.milkJug); end
+            if ishandle(obj.iceCube), delete(obj.iceCube); end
+            if ishandle(obj.portafilter), delete(obj.portafilter); end
+            
+            % Create new instances of movable objects
+            obj.cup = PlaceObject('Cup.ply', [x-0.1, y+0.3, z+0.65]);
+            obj.cupLid = PlaceObject('CupLid.ply', [x+0.1, y+0.3, z+0.65]);
+            obj.milkJug = PlaceObject('MilkJug.ply', [x+0.1, y+0.15, z+0.65]);
+            obj.iceCube = PlaceObject('IceCube.ply', [x+0, y+0.5, z+0]);
+            obj.portafilter = PlaceObject('EspressoHandle.ply', [x+0, y+0.4, z+0.7]);
+            
+            disp('Movable objects have been reset to their initial positions.');
+        end
+    end
 end
-
