@@ -1,4 +1,4 @@
-classdef BrewbotMovements
+classdef BrewBotMovements
     %This class is a collection of movements and helper functions to test
     %GUI's functionality
     
@@ -17,7 +17,6 @@ classdef BrewbotMovements
         cupVertices;
         cupLidVertices;
         milkJugVertices;
-        iceCubeVertices;
         portafilterVertices;
     end
     
@@ -290,7 +289,7 @@ classdef BrewbotMovements
 
 
     methods
-        function obj = BrewbotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoObj)
+        function obj = BrewBotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, portafilter, arduinoObj)
             % Constructor to initialize the class with robots and serial
             obj.nova2 = r_nova2;
             obj.ur3e = r_ur3e;
@@ -357,11 +356,14 @@ classdef BrewbotMovements
             % Compute the end-effector transformation matrix
             tr = robot.model.fkine(qCurrent); 
 
+            objectCenter = mean(vertices);
+            vertices = vertices - objectCenter;  % Shift vertices to center the object
+
             % Transform the object's vertices only relative to the current end-effector position
             % Use the transformation matrix 'tr' directly to compute the new vertices
 
             % Transform the vertices using the new end-effector pose
-            transformedVertices = [vertices,ones(size(vertices,1),1)] * tr.T';
+            transformedVertices = [vertices,ones(size(vertices,1),1)] * (tr.T * trotx(pi/2) * troty(-pi/2))';
             % Update the object's vertices
             set(object, 'Vertices', transformedVertices(:, 1:3));
         end
@@ -465,61 +467,27 @@ classdef BrewbotMovements
 
         function latteCreate(obj, hObject)
             % Function that creates a latte drink.
-
+            
             % Grab cup + Move to milk jub movement
-            nova2Waypoints = BrewbotMovements.GrabCup();
-            ur3eWaypoints = BrewbotMovements.MovetoJug();
+            nova2Waypoints = BrewBotMovements.GrabCup();
+            ur3eWaypoints = BrewBotMovements.MovetoJug();
             obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
             
             % Place cup at machine + Grab Jug
-            nova2Waypoints = BrewbotMovements.PlaceCupatMachine();
-            ur3eWaypoints = BrewbotMovements.GrabJug();
+            nova2Waypoints = BrewBotMovements.PlaceCupatMachine();
+            ur3eWaypoints = BrewBotMovements.GrabJug();
             obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
             
             % Portafilter to Grinder + Put Jug Below Frother
-            nova2Waypoints = BrewbotMovements.PipetoGrinder();
-            ur3eWaypoints = BrewbotMovements.PutJugBelowFrother();
-            obj.moveRobot(hObject, [],[],[], ur3eWaypoints, obj.milkJug, obj.milkJugVertices); 
+            nova2Waypoints = BrewBotMovements.PipetoGrinder();
+            ur3eWaypoints = BrewBotMovements.PutJugBelowFrother();
+            obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices); 
             
             % Place Cup at Machine + Froth Milk
-            nova2Waypoints = BrewbotMovements.PipetoMachine();
-            ur3eWaypoints = BrewbotMovements.FrothMilk();
-            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints, [], []);
+            nova2Waypoints = BrewBotMovements.PipetoMachine();
+            ur3eWaypoints = BrewBotMovements.FrothMilk();
+            obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
             
-            % Return Cup + FinishFrothing
-            nova2Waypoints = BrewbotMovements.ReturnCup();
-            ur3eWaypoints = BrewbotMovements.FinishFrothing();
-            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints, [], []);
-
-
-            nova2Waypoints = BrewbotMovements.ReturnPipe();
-            ur3eWaypoints = BrewbotMovements.PickUpJug();
-            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints, [], []);
-
-
-            nova2Waypoints = BrewbotMovements.MovetoLid();
-            ur3eWaypoints = BrewbotMovements.PlaceJugBack();
-            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints, [], []);
-
-
-            nova2Waypoints = BrewbotMovements.GrabLid();
-            ur3eWaypoints = BrewbotMovements.ReturnBackafterPouring();
-            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints, [], []);
-
-
-            nova2Waypoints = BrewbotMovements.ReturnNova2();
-            ur3eWaypoints = BrewbotMovements.MovetoFinishedCup();
-            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints, [], []);
-
-            
-            nova2Waypoints = BrewbotMovements.ReturnNova2();
-            ur3eWaypoints = BrewbotMovements.PickUpFinishedCup();
-            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints, [], []);
-
-
-            nova2Waypoints = BrewbotMovements.ReturnNova2();
-            ur3eWaypoints = BrewbotMovements.ReturnUR3e();
-            obj.moveRobot(hObject, nova2Waypoints, ur3eWaypoints, [], []);
         end
 
         function iceCoffeeCreate(obj, hObject)

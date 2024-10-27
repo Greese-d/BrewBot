@@ -73,13 +73,13 @@ catch
 end
 
  % Initialize Robot Models and Environment objects
-[nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup; % create environment, stash robot objects
+[nova2, ur3e, cup, cupLid, milkJug, portafilter] = EnvSetup; % create environment, stash robot objects
 
 % Create instance of movement class and inject robot objects and Arduino object
-handles.movement = BrewbotMovements(nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoBoard);
+handles.movement = BrewBotMovements(nova2, ur3e, cup, cupLid, milkJug, portafilter, arduinoBoard);
 
 %Uncomment for testmovements
-%handles.movement = BrewbotTestMovements(nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoBoard);
+%handles.movement = BrewbotMovements(nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter, arduinoBoard);
 
 % Create empty list of orders
 handles.order_list = strings(0);

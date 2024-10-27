@@ -33,6 +33,7 @@ function [nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup
     
     %% Movable objects
     cup = PlaceObject('Cup.ply', [x-0.1, y+0.3, z+0.65]); % add coffee cup model
+    
     cupLid = PlaceObject('CupLid.ply', [x+0.1, y+0.3, z+0.65]); % add coffee lid model
     
     % cupWithLid = PlaceObject('CupWithLid.ply', [x-0.1, y+0.15, z+0.65]); % add cup with lid model
