@@ -6,7 +6,6 @@ classdef EnvSetup
         cup;
         cupLid;
         milkJug;
-        iceCube;
         portafilter;
         
         % Non-movable objects
@@ -82,10 +81,10 @@ classdef EnvSetup
             if ishandle(obj.portafilter), delete(obj.portafilter); end
             
             % Create new instances of movable objects
-            obj.cup = PlaceObject('Cup.ply', [x-0.1, y+0.3, z+0.65]);
+            
+            obj.cup = PlaceObject('Cup.ply', [x+0.1, y+0.15, z+0.65]);
             obj.cupLid = PlaceObject('CupLid.ply', [x+0.1, y+0.3, z+0.65]);
-            obj.milkJug = PlaceObject('MilkJug.ply', [x+0.1, y+0.15, z+0.65]);
-            obj.iceCube = PlaceObject('IceCube.ply', [x+0, y+0.5, z+0]);
+            obj.milkJug = PlaceObject('MilkJug.ply', [x-0.1, y+0.3, z+0.65]);
             obj.portafilter = PlaceObject('EspressoHandle.ply', [x+0, y+0.4, z+0.7]);
             
             disp('Movable objects have been reset to their initial positions.');

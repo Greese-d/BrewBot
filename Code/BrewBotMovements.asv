@@ -26,13 +26,13 @@ classdef BrewBotMovements
         function q2Waypoints = GrabCup()
             q2Waypoints = [
                         deg2rad([0, 0, 0, 0, 0, 0]);              % Initial position
-                        deg2rad([-7.2, -7.2, 7.2, -93.6, 180, 0]); % Grab cup position
-                        deg2rad([-7.2, 36, -72, -50.4, 180, 0]);   % Lift cup
+                        deg2rad([-7.2, -7.2, 7.2, -93.6, 180, 0]); % Grab cup position    
             ];
         end
         
         function q2Waypoints = PlaceCupatMachine()
             q2Waypoints = [
+                        deg2rad([-7.2, -7.2, 7.2, -93.6, 180, 0])
                         deg2rad([-7.2, 36, -72, -50.4, 180, 0]);   % Lift cup
                         deg2rad([5, 57.6, -122, -21.6, 180, 0]);   % Move to intermediary
                         deg2rad([64.8, 57.6, -122, -21.6, 180, 0]);  % Move to machine (cup placement)
@@ -45,15 +45,14 @@ classdef BrewBotMovements
                         deg2rad([64.8, 43.2, -108, -21.6, 180, 0]);  % Place cup
                         deg2rad([57.6, 93.6, -158, -21.6, 180, 0]); % Pull back after placing
                         deg2rad([0, 93.6, -158, -21.6, 180, 0]);    % Rotate back to initial
-
+                        deg2rad([0, 93.6, -158, -21.6, 180, 0]);    % Rotate back to initial
+                        deg2rad([-14.4, 14.4, -28.8, -64.8, 93.6, 0]); % Pick pipe
         
             ];
         end
 
         function q2Waypoints = PipetoGrinder()
             q2Waypoints = [
-
-                        deg2rad([0, 93.6, -158, -21.6, 180, 0]);    % Rotate back to initial
                         deg2rad([-14.4, 14.4, -28.8, -64.8, 93.6, 0]); % Pick pipe
                         deg2rad([7.2, 101, -151, -36, 93.6, 0]);    % Lift pipe
                         deg2rad([151, 101, -151, -36, 93.6, 0]);    % Rotate with pipe
@@ -342,10 +341,10 @@ classdef BrewBotMovements
             obj.arduinoObj = arduinoObj;  % Store the Arduino object
             
             % Creating grippers
-            obj.ur3eGripper = DualFingerGripper(); % Creating gripper for UR3e
-            obj.nova2Gripper = DualFingerGripper(); % Creating gripper for DobotNova2
-            obj.attachGripperToRobot(obj.ur3eGripper, obj.ur3e); % Attaching gripper to UR3e
-            obj.attachGripperToRobot(obj.nova2Gripper, obj.nova2); % Attaching gripper to DobotNova2
+            %obj.ur3eGripper = DualFingerGripper(); % Creating gripper for UR3e
+            %obj.nova2Gripper = DualFingerGripper(); % Creating gripper for DobotNova2
+            %obj.attachGripperToRobot(obj.ur3eGripper, obj.ur3e); % Attaching gripper to UR3e
+            %obj.attachGripperToRobot(obj.nova2Gripper, obj.nova2); % Attaching gripper to DobotNova2
          
 
             view(210, 15)
@@ -396,7 +395,7 @@ classdef BrewBotMovements
             % Use the transformation matrix 'tr' directly to compute the new vertices
 
             % Transform the vertices using the new end-effector pose
-            transformedVertices = [vertices,ones(size(vertices,1),1)] * (tr.T * trotx(pi/2) * troty(-pi/2))';
+            transformedVertices = [vertices,ones(size(vertices,1),1)] * (tr.T * trotx(pi/2) * troty(-pi/2) * transl(0, 0, 0.05))';
             % Update the object's vertices
             set(object, 'Vertices', transformedVertices(:, 1:3));
         end
@@ -547,9 +546,24 @@ classdef BrewBotMovements
             %Return to initial for nova2 and ur3e
             nova2Waypoints = BrewBotMovements.ReturnHome();
             ur3eWaypoints =  BrewBotMovements.ReturnBackafterPouring();
-            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, bj.milkJug, obj.milkJugVertices);
+            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
 
+            %move to cup lid (nova2 only)
+            nova2Waypoints = BrewBotMovements.MovetoLid();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
 
+            %place cup lid (nova2 only)
+            nova2Waypoints = BrewBotMovements.GrabLid();
+            obj.moveRobot(hObject, nova2Waypoints, obj.cupLid, obj.cupLidVertices, [], [], []);
+
+            %Nova return home + Ur3 move to cup
+            nova2Waypoints = BrewBotMovements.ReturnNova2();
+            ur3eWaypoints =  BrewBotMovements.MovetoFinishedCup();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
+
+            %UR3e pick up cup (Ur3e only)
+            ur3eWaypoints =  BrewBotMovements.PickUpFinishedCup();
+            obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices); %it should be cup with lid
 
 
 
@@ -573,10 +587,14 @@ classdef BrewBotMovements
             
             if ~isempty(nova2Waypoints)
                 nova2QMatrix = InterpolateWaypointRadians(nova2Waypoints, deg2rad(3));
+            else 
+                nova2QMatrix = [];
             end
             
             if ~isempty(ur3eWaypoints)
                 ur3eQMatrix = InterpolateWaypointRadians(ur3eWaypoints, deg2rad(5));
+            else 
+                ur3eQMatrix = [];
             end 
 
             % Ensure both robots move for the same number of steps

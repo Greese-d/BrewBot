@@ -26,13 +26,13 @@ classdef BrewBotMovements
         function q2Waypoints = GrabCup()
             q2Waypoints = [
                         deg2rad([0, 0, 0, 0, 0, 0]);              % Initial position
-                        deg2rad([-7.2, -7.2, 7.2, -93.6, 180, 0]); % Grab cup position
-                        deg2rad([-7.2, 36, -72, -50.4, 180, 0]);   % Lift cup
+                        deg2rad([-7.2, -7.2, 7.2, -93.6, 180, 0]); % Grab cup position    
             ];
         end
         
         function q2Waypoints = PlaceCupatMachine()
             q2Waypoints = [
+                        deg2rad([-7.2, -7.2, 7.2, -93.6, 180, 0])
                         deg2rad([-7.2, 36, -72, -50.4, 180, 0]);   % Lift cup
                         deg2rad([5, 57.6, -122, -21.6, 180, 0]);   % Move to intermediary
                         deg2rad([64.8, 57.6, -122, -21.6, 180, 0]);  % Move to machine (cup placement)
@@ -45,15 +45,14 @@ classdef BrewBotMovements
                         deg2rad([64.8, 43.2, -108, -21.6, 180, 0]);  % Place cup
                         deg2rad([57.6, 93.6, -158, -21.6, 180, 0]); % Pull back after placing
                         deg2rad([0, 93.6, -158, -21.6, 180, 0]);    % Rotate back to initial
-
+                        deg2rad([0, 93.6, -158, -21.6, 180, 0]);    % Rotate back to initial
+                        deg2rad([-14.4, 14.4, -28.8, -64.8, 93.6, 0]); % Pick pipe
         
             ];
         end
 
         function q2Waypoints = PipetoGrinder()
             q2Waypoints = [
-
-                        deg2rad([0, 93.6, -158, -21.6, 180, 0]);    % Rotate back to initial
                         deg2rad([-14.4, 14.4, -28.8, -64.8, 93.6, 0]); % Pick pipe
                         deg2rad([7.2, 101, -151, -36, 93.6, 0]);    % Lift pipe
                         deg2rad([151, 101, -151, -36, 93.6, 0]);    % Rotate with pipe
@@ -123,13 +122,13 @@ classdef BrewBotMovements
                         deg2rad([158, -72, 108, 0, 0, 0]);        % Rotate and move
                         deg2rad([144, -72, 108, -108, 0, 0]);     % Move down
                         deg2rad([144, -57.6, 101, -108, 0, 0]);   % Stretch towards jug placement
+                        deg2rad([144, -28.8, 50.4, -108, 0, 0]);  % Grab the jug
                         
         ];
         end
         
         function q2Waypoints = GrabJug()
             q2Waypoints = [
-                        deg2rad([144, -57.6, 101, -108, 0, 0]);   % Stretch towards cup placement
                         deg2rad([144, -28.8, 50.4, -108, 0, 0]);  % Grab the jug
                         deg2rad([144, -36, 57.6, -108, 0, 0]);    % Pull the jug
                         deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk    
@@ -342,10 +341,10 @@ classdef BrewBotMovements
             obj.arduinoObj = arduinoObj;  % Store the Arduino object
             
             % Creating grippers
-            obj.ur3eGripper = DualFingerGripper(); % Creating gripper for UR3e
-            obj.nova2Gripper = DualFingerGripper(); % Creating gripper for DobotNova2
-            obj.attachGripperToRobot(obj.ur3eGripper, obj.ur3e); % Attaching gripper to UR3e
-            obj.attachGripperToRobot(obj.nova2Gripper, obj.nova2); % Attaching gripper to DobotNova2
+            %obj.ur3eGripper = DualFingerGripper(); % Creating gripper for UR3e
+            %obj.nova2Gripper = DualFingerGripper(); % Creating gripper for DobotNova2
+            %obj.attachGripperToRobot(obj.ur3eGripper, obj.ur3e); % Attaching gripper to UR3e
+            %obj.attachGripperToRobot(obj.nova2Gripper, obj.nova2); % Attaching gripper to DobotNova2
          
 
             view(210, 15)
@@ -396,7 +395,7 @@ classdef BrewBotMovements
             % Use the transformation matrix 'tr' directly to compute the new vertices
 
             % Transform the vertices using the new end-effector pose
-            transformedVertices = [vertices,ones(size(vertices,1),1)] * (tr.T * trotx(pi/2) * troty(-pi/2))';
+            transformedVertices = [vertices,ones(size(vertices,1),1)] * (tr.T * trotx(pi/2) * troty(-pi/2) * transl(0, 0.1, 0))';
             % Update the object's vertices
             set(object, 'Vertices', transformedVertices(:, 1:3));
         end
@@ -633,7 +632,7 @@ classdef BrewBotMovements
                 
                 drawnow();
                 % Pause briefly to simulate real-time animation
-                pause(0.01);
+                pause(0.025);
             end
         end
 
