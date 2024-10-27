@@ -3,8 +3,19 @@ clc;
 clear all;
 close all;
 
-% Call EnvSetup function to initialize the environment and both robots (UR3e and Nova2)
-[nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup();  % Includes both nova2 and ur3e robots
+% Initialize the Environment class
+env = EnvSetup();
+
+% Initialize the Environment class
+
+% Access environment objects
+nova2 = env.nova2;
+ur3e = env.ur3e;
+cup = env.cup;
+cupLid = env.cupLid;
+milkJug = env.milkJug;
+portafilter = env.portafilter;
+
 
 % Set up the environment with various objects (shelves, barriers, a person model, emergency stops, and a table).
 hold on;  % Hold the current plot for multiple objects
