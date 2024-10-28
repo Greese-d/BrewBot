@@ -421,18 +421,17 @@ classdef BrewBotMovements
         
         %% Reset environement + update verticies 
         function resetVerices(obj, hObject)
-            obj.envSetup = obj.envSetup.initialEnvironment();
-            obj.cup = obj.envSetup.cup;
+            % Reset the environment using initialEnvironment method
+            [obj.cup, obj.cupLid, obj.milkJug, obj.portafilter] = obj.envSetup.initialEnvironment();
+
             obj.cupVertices = get(obj.cup, 'Vertices');
-
-            obj.cupLid = obj.envSetup.cupLid; 
-            obj.cupLidVertices = get(obj.cupLid, 'Vertices');  
-
-            obj.milkJug = obj.envSetup.milkJug;
-            obj.milkJugVertices = get(obj.milkJug, 'Vertices'); 
-
-            obj.portafilter = obj.envSetup.portafilter;
+            obj.cupLidVertices = get(obj.cupLid, 'Vertices');
+            obj.milkJugVertices = get(obj.milkJug, 'Vertices');
             obj.portafilterVertices = get(obj.portafilter, 'Vertices');
+        
+            % Display confirmation
+            disp('Environment has been reset and object references updated.');
+
         end
 
         %% Robot's program execution
@@ -490,7 +489,7 @@ classdef BrewBotMovements
                 end
                         
                 disp("Order is complete");
-                obj.envSetup = obj.envSetup.initialEnvironment(); 
+
                 obj.resetVerices(hObject);
                 
 

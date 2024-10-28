@@ -7,6 +7,7 @@ classdef EnvSetup
         cupLid;
         milkJug;
         portafilter;
+        teaBag
         
         % Non-movable objects
         espressoMachine;
@@ -14,6 +15,7 @@ classdef EnvSetup
         iceCubeDispenser;
         milkDispenser;
         table;
+        teaBox
         
         % Axes and view settings
         axisLimits;
@@ -52,6 +54,8 @@ classdef EnvSetup
             obj.iceCubeDispenser = PlaceObject('IceCubeDispenser.ply', [x-0.65, y-0.55, z+0.65]);
             obj.milkDispenser = PlaceObject('MilkDispenser.ply', [x-0.3, y-0.25, z+0.66]);
             obj.table = PlaceObject('Table.ply', [x+0, y+0, z+0.4]);
+            obj.teaBox = PlaceObject('TeaBox.ply', [x-0.27, y+0.45, z+0.6]);
+            
             
             % Initialize the movable objects
             obj = obj.initialEnvironment();
@@ -64,29 +68,37 @@ classdef EnvSetup
             obj.ur3e = UR3e(transl(x-0.6, y+0.3, z+0.6));
         end
         
-        function obj = initialEnvironment(obj)
+        function [obj, cup, cupLid, milkJug, portafilter, teaBag] = initialEnvironment(obj)
             % Method to reset movable objects to their initial positions
             % Deletes previous objects if they exist and recreates them
-            
+        
             % Initial coordinates to reset the environment objects
             x = 0.2;
             y = 0;
             z = 0;
-            
+        
+            % Delete previous objects if they exist
             % Delete previous objects if they exist
             if ishandle(obj.cup), delete(obj.cup); end
             if ishandle(obj.cupLid), delete(obj.cupLid); end
             if ishandle(obj.milkJug), delete(obj.milkJug); end
             if ishandle(obj.portafilter), delete(obj.portafilter); end
-            
+        
             % Create new instances of movable objects
-            
             obj.cup = PlaceObject('Cup.ply', [x+0.1, y+0.15, z+0.65]);
             obj.cupLid = PlaceObject('CupLid.ply', [x+0.1, y+0.3, z+0.65]);
             obj.milkJug = PlaceObject('MilkJug.ply', [x-0.1, y+0.3, z+0.65]);
             obj.portafilter = PlaceObject('EspressoHandle.ply', [x+0, y+0.4, z+0.7]);
-            
+            obj.teaBag = PlaceObject('TeaBag.ply', [x-0.34, y+0.35, z+0.6]);
+        
             disp('Movable objects have been reset to their initial positions.');
+        
+            % Return the updated object handles
+            cup = obj.cup;
+            cupLid = obj.cupLid;
+            milkJug = obj.milkJug;
+            portafilter = obj.portafilter;
+            teaBag = obj.teaBag;
         end
     end
 end
