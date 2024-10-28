@@ -63,7 +63,7 @@ classdef EnvSetup
             
             disp('Adding UR3e robot to the environment');
             obj.ur3e = UR3e(transl(x-0.6, y+0.3, z+0.6));
-        
+            
             %% Create new instances of movable objects
             obj.cup = PlaceObject('Cup.ply', [x+0.1, y+0.15, z+0.65]);
             obj.cupLid = PlaceObject('CupLid.ply', [x+0.1, y+0.3, z+0.65]);
@@ -71,6 +71,8 @@ classdef EnvSetup
             obj.portafilter = PlaceObject('EspressoHandle.ply', [x+0, y+0.4, z+0.7]);
             obj.teaBag = PlaceObject('TeaBag.ply', [x-0.34, y+0.35, z+0.6]);
             obj.cupWithLid = PlaceObject('CupWithLid.ply', [x+0.1, y+0.15, z+0.65]);
+
+            set(obj.cupWithLid, 'Visible', 'off');
         end 
     end
 end

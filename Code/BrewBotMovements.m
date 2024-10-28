@@ -429,7 +429,7 @@ classdef BrewBotMovements
 
         %% Reset objects to initial position
         function resetObjects(obj, hObject)
-        
+            
         end 
 
         %% Robot's program execution
@@ -518,7 +518,7 @@ classdef BrewBotMovements
         %% Methods for drinks
         function espressoCreate(obj, hObject)
             % Function that creates an espresso drink.
-
+            
             % Grab cup (Nova2 only)
             nova2Waypoints = BrewBotMovements.GrabCup();
             obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
@@ -571,11 +571,15 @@ classdef BrewBotMovements
             nova2Waypoints = BrewBotMovements.ReturnNova2();
             ur3eWaypoints =  BrewBotMovements.MovetoFinishedCup();
             obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
-
+            
+            set(obj.cup, 'Visible', 'off');
+            set(obj.cupLid, 'Visible', 'off');
+            set(obj.cupWithLid, 'Visible', 'on');
             %UR3e pick up cup (Ur3e only)
             ur3eWaypoints =  BrewBotMovements.PickUpFinishedCup();
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices); %it should be cup with lid
-
+            
+            set(obj.cupWithLid, 'Visible', 'off');
             %UR3e return (UR3e only)
             ur3eWaypoints =  BrewBotMovements.ReturnUR3e();
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []); %it should be cup with lid
@@ -584,7 +588,8 @@ classdef BrewBotMovements
 
         function latteCreate(obj, hObject)
             % Function that creates a latte drink.
-            
+            set(obj.cupWithLid, 'Visible', 'off');
+
             % Grab cup + Move to milk jub movement
             nova2Waypoints = BrewBotMovements.GrabCup();
             ur3eWaypoints = BrewBotMovements.MovetoJug();
@@ -646,10 +651,14 @@ classdef BrewBotMovements
             ur3eWaypoints =  BrewBotMovements.MovetoFinishedCup();
             obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
 
+            set(obj.cup, 'Visible', 'off');
+            set(obj.cupLid, 'Visible', 'off');
+            set(obj.cupWithLid, 'Visible', 'on');
             %UR3e pick up cup (Ur3e only)
             ur3eWaypoints =  BrewBotMovements.PickUpFinishedCup();
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices); %it should be cup with lid
-
+            
+            set(obj.cupWithLid, 'Visible', 'off');
             %UR3e return (UR3e only)
             ur3eWaypoints =  BrewBotMovements.ReturnUR3e();
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []); %it should be cup with lid
