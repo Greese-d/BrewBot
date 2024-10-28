@@ -633,10 +633,9 @@ classdef BrewBotMovements
             nova2Waypoints = BrewBotMovements.ReturnCup();
             obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, [], [], []);
 
-            %Nova2 go to initial + Move to cup to add ice
-            nova2Waypoints = BrewBotMovements.MovetoReturnPipe();
+            %Move to cup to add ice (UR3e only)
             ur3eWaypoints = BrewBotMovements.MovetoCup();
-            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
+            obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []);
 
             %add ice to cup (UR3e only)
             ur3eWaypoints = BrewBotMovements.GetIce();
@@ -652,39 +651,9 @@ classdef BrewBotMovements
             ur3eWaypoints = BrewBotMovements.MovetoJugAfterIce();
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []);
 
-            %pick up jug start pouring (UR3e only)
-            ur3eWaypoints = BrewBotMovements.PickUpJug();
-            obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
-
-            %add delay for pouring
-
-            %place jug back after pouring (UR3e only)
-            ur3eWaypoints = BrewBotMovements.PlaceJugBack();
-            obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
-
-            %Go to initial after pouring
-            ur3eWaypoints = BrewBotMovements.ReturnBackafterPouring();
+            %pick up jug to start pouring (UR3e only)
+            ur3eWaypoints = BrewBotMovements.MovetoJugAfterIce();
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []);
-
-            %move to cup lid (nova2 only)
-            nova2Waypoints = BrewBotMovements.MovetoLid();
-            obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
-
-            %place cup lid (nova2 only)
-            nova2Waypoints = BrewBotMovements.GrabLid();
-            obj.moveRobot(hObject, nova2Waypoints, obj.cupLid, obj.cupLidVertices, [], [], []);
-
-            %Nova return home + Ur3 move to cup
-            nova2Waypoints = BrewBotMovements.ReturnNova2();
-            ur3eWaypoints =  BrewBotMovements.MovetoFinishedCup();
-            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
-
-            %UR3e pick up cup (Ur3e only)
-            ur3eWaypoints =  BrewBotMovements.PickUpFinishedCup();
-            obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices); %it should be cup with lid
-
-
-    
 
 
 
