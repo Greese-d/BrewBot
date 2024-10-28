@@ -122,13 +122,13 @@ classdef BrewBotMovements
                         deg2rad([158, -72, 108, 0, 0, 0]);        % Rotate and move
                         deg2rad([144, -72, 108, -108, 0, 0]);     % Move down
                         deg2rad([144, -57.6, 101, -108, 0, 0]);   % Stretch towards jug placement
+                        deg2rad([144, -28.8, 50.4, -108, 0, 0]);  % Grab the jug
                         
         ];
         end
         
         function q2Waypoints = GrabJug()
             q2Waypoints = [
-                        deg2rad([144, -57.6, 101, -108, 0, 0]);   % Stretch towards cup placement
                         deg2rad([144, -28.8, 50.4, -108, 0, 0]);  % Grab the jug
                         deg2rad([144, -36, 57.6, -108, 0, 0]);    % Pull the jug
                         deg2rad([93.6, -50.4, 115, -151, 0, 0]);  % Pour milk    
@@ -316,7 +316,7 @@ classdef BrewBotMovements
         end
     end
 
-
+    %% Initialisation method
     methods
         function obj = BrewBotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, portafilter, arduinoObj)
             % Constructor to initialize the class with robots and serial
@@ -395,7 +395,7 @@ classdef BrewBotMovements
             % Use the transformation matrix 'tr' directly to compute the new vertices
 
             % Transform the vertices using the new end-effector pose
-            transformedVertices = [vertices,ones(size(vertices,1),1)] * (tr.T * trotx(pi/2) * troty(-pi/2) * transl(0, 0, 0.05))';
+            transformedVertices = [vertices,ones(size(vertices,1),1)] * (tr.T * trotx(pi/2) * troty(-pi/2) * transl(0, 0.05, 0))';
             % Update the object's vertices
             set(object, 'Vertices', transformedVertices(:, 1:3));
         end
@@ -584,21 +584,15 @@ classdef BrewBotMovements
         %% Helper function to move robot to desired location specified by qMatrix
         % Checks if e-stop was initiated and does not move robot if triggered
         function moveRobot(obj, hObject, nova2Waypoints, nova2MovedObject, nova2Vertices, ur3eWaypoints, ur3eMovedObject, ur3eVertices)
-            
             if ~isempty(nova2Waypoints)
                 nova2QMatrix = InterpolateWaypointRadians(nova2Waypoints, deg2rad(3));
-            else 
-                nova2QMatrix = [];
-            end
-            
+            end 
             if ~isempty(ur3eWaypoints)
                 ur3eQMatrix = InterpolateWaypointRadians(ur3eWaypoints, deg2rad(5));
-            else 
-                ur3eQMatrix = [];
-            end 
+            end
 
             % Ensure both robots move for the same number of steps
-            steps = max(size(nova2QMatrix, 1), size(nova2QMatrix, 1)); % make a function
+            steps = max(size(nova2QMatrix, 1), size(ur3eQMatrix, 1)); % make a function
             
             % Loop through and move both robots simultaneously
             for i = 1:steps
@@ -607,36 +601,41 @@ classdef BrewBotMovements
                     return;
                 end
                 
-                % Move DobotNova2 (robot1)
-                if i <= size(nova2QMatrix, 1)
-
-                    if ~isempty(nova2MovedObject)
-                        obj.moveObjects(nova2MovedObject, nova2QMatrix(i, :), obj.nova2, nova2Vertices);
+                if ~isempty(nova2Waypoints)
+                    % Move DobotNova2 (robot1)
+                    if i <= size(nova2QMatrix, 1)
+    
+                        if ~isempty(nova2MovedObject)
+                            obj.moveObjects(nova2MovedObject, nova2QMatrix(i, :), obj.nova2, nova2Vertices);
+                        end
+    
+                        %obj.attachGripperToRobot(obj.nova2Gripper, obj.nova2);
+                        obj.nova2.model.animate(nova2QMatrix(i, :));  % Animate DobotNova2
+                    else
+                        obj.nova2.model.animate(nova2QMatrix(end, :));  % Hold last position
                     end
+                end 
 
-                    %obj.attachGripperToRobot(obj.nova2Gripper, obj.nova2);
-                    obj.nova2.model.animate(nova2QMatrix(i, :));  % Animate DobotNova2
-                else
-                    obj.nova2.model.animate(nova2QMatrix(end, :));  % Hold last position
-                end
-
-                % Move UR3e (robot2)
-                if i <= size(ur3eQMatrix, 1)
+                if ~isempty(ur3eWaypoints)
+                    % Move UR3e (robot2)
+                    if (i <= size(ur3eQMatrix, 1)
                     
-                    %obj.attachGripperToRobot(obj.ur3eGripper, obj.ur3e);
-                    
-                    if ~isempty(ur3eMovedObject) 
-                        obj.moveObjects(ur3eMovedObject, ur3eQMatrix(i, :), obj.ur3e, ur3eVertices);
+                        
+                        %obj.attachGripperToRobot(obj.ur3eGripper, obj.ur3e);
+                        
+                        if ~isempty(ur3eMovedObject) 
+                            obj.moveObjects(ur3eMovedObject, ur3eQMatrix(i, :), obj.ur3e, ur3eVertices);
+                        end
+                         
+                        obj.ur3e.model.animate(ur3eQMatrix(i, :));  % Animate UR3e
+                    else
+                        obj.ur3e.model.animate(ur3eQMatrix(end, :));  % Hold last position
                     end
-
-                    obj.ur3e.model.animate(ur3eQMatrix(i, :));  % Animate UR3e
-                else
-                    obj.ur3e.model.animate(ur3eQMatrix(end, :));  % Hold last position
+                    
+                    drawnow();
+                    % Pause briefly to simulate real-time animation
+                    pause(0.03);
                 end
-                
-                drawnow();
-                % Pause briefly to simulate real-time animation
-                pause(0.01);
             end
         end
 

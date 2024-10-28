@@ -316,7 +316,7 @@ classdef BrewBotMovements
         end
     end
 
-
+    %% Initialisation method
     methods
         function obj = BrewBotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, portafilter, arduinoObj)
             % Constructor to initialize the class with robots and serial
@@ -584,17 +584,19 @@ classdef BrewBotMovements
         %% Helper function to move robot to desired location specified by qMatrix
         % Checks if e-stop was initiated and does not move robot if triggered
         function moveRobot(obj, hObject, nova2Waypoints, nova2MovedObject, nova2Vertices, ur3eWaypoints, ur3eMovedObject, ur3eVertices)
-            
             if ~isempty(nova2Waypoints)
                 nova2QMatrix = InterpolateWaypointRadians(nova2Waypoints, deg2rad(3));
-            end
-            
+            else 
+                nova2QMatrix = [];
+            end 
             if ~isempty(ur3eWaypoints)
                 ur3eQMatrix = InterpolateWaypointRadians(ur3eWaypoints, deg2rad(5));
-            end 
+            else 
+                ur3eQMatrix = [];
+            end
 
             % Ensure both robots move for the same number of steps
-            steps = max(size(nova2QMatrix, 1), size(nova2QMatrix, 1)); % make a function
+            steps = max(size(nova2QMatrix, 1), size(ur3eQMatrix, 1)); % make a function
             
             % Loop through and move both robots simultaneously
             for i = 1:steps
@@ -603,36 +605,41 @@ classdef BrewBotMovements
                     return;
                 end
                 
-                % Move DobotNova2 (robot1)
-                if i <= size(nova2QMatrix, 1)
-
-                    if ~isempty(nova2MovedObject)
-                        obj.moveObjects(nova2MovedObject, nova2QMatrix(i, :), obj.nova2, nova2Vertices);
+                if ~isempty(nova2Waypoints)
+                    % Move DobotNova2 (robot1)
+                    if i <= size(nova2QMatrix, 1)
+    
+                        if ~isempty(nova2MovedObject)
+                            obj.moveObjects(nova2MovedObject, nova2QMatrix(i, :), obj.nova2, nova2Vertices);
+                        end
+    
+                        %obj.attachGripperToRobot(obj.nova2Gripper, obj.nova2);
+                        obj.nova2.model.animate(nova2QMatrix(i, :));  % Animate DobotNova2
+                    else
+                        obj.nova2.model.animate(nova2QMatrix(end, :));  % Hold last position
                     end
+                end 
 
-                    %obj.attachGripperToRobot(obj.nova2Gripper, obj.nova2);
-                    obj.nova2.model.animate(nova2QMatrix(i, :));  % Animate DobotNova2
-                else
-                    obj.nova2.model.animate(nova2QMatrix(end, :));  % Hold last position
-                end
-
-                % Move UR3e (robot2)
-                if i <= size(ur3eQMatrix, 1)
+                if ~isempty(ur3eWaypoints)
+                    % Move UR3e (robot2)
+                    if i <= size(ur3eQMatrix, 1)
                     
-                    %obj.attachGripperToRobot(obj.ur3eGripper, obj.ur3e);
-                    
-                    if ~isempty(ur3eMovedObject) 
-                        obj.moveObjects(ur3eMovedObject, ur3eQMatrix(i, :), obj.ur3e, ur3eVertices);
+                        
+                        %obj.attachGripperToRobot(obj.ur3eGripper, obj.ur3e);
+                        
+                        if ~isempty(ur3eMovedObject) 
+                            obj.moveObjects(ur3eMovedObject, ur3eQMatrix(i, :), obj.ur3e, ur3eVertices);
+                        end
+                         
+                        obj.ur3e.model.animate(ur3eQMatrix(i, :));  % Animate UR3e
+                    else
+                        obj.ur3e.model.animate(ur3eQMatrix(end, :));  % Hold last position
                     end
-
-                    obj.ur3e.model.animate(ur3eQMatrix(i, :));  % Animate UR3e
-                else
-                    obj.ur3e.model.animate(ur3eQMatrix(end, :));  % Hold last position
+                    
+                    drawnow();
+                    % Pause briefly to simulate real-time animation
+                    pause(0.01);
                 end
-                
-                drawnow();
-                % Pause briefly to simulate real-time animation
-                pause(0.03);
             end
         end
 
