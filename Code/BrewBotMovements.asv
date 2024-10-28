@@ -10,18 +10,21 @@ classdef BrewBotMovements
         cup;
         cupLid; 
         milkJug;
+        teaBag;
+        cupWithLid;
+
         portafilter;
         cupVertices;
         cupLidVertices;
         milkJugVertices;
         portafilterVertices;
+        teaBagVertices;
+        cupWithLidVertices;
 
         arduinoObj; % Arduino object for button monitoring;
         ur3eGripper;
         nova2Gripper;
         
-
-        envSetup; % Add this property to store the EnvSetup instance
     end
     
     %% Methods with 
@@ -328,7 +331,7 @@ classdef BrewBotMovements
 
     %% Initialisation method
     methods
-        function obj = BrewBotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, portafilter, arduinoObj, envSetup)
+        function obj = BrewBotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, portafilter, teaBag, cupWithLid, arduinoObj)
             % Constructor to initialize the class with robots and serial
             obj.nova2 = r_nova2;
             obj.ur3e = r_ur3e;
@@ -346,10 +349,14 @@ classdef BrewBotMovements
 
             obj.portafilter = portafilter;
             obj.portafilterVertices = get(obj.portafilter, 'Vertices');
+            
+            obj.teaBag = teaBag;
+            obj.teaBagVertices = get(obj.teaBag, 'Vertices');
 
+            obj.cupWithLid = cupWithLid;
+            obj.cupWithLidVertices = get(obj.cupWithLid, 'Vertices');
 
             obj.arduinoObj = arduinoObj;  % Store the Arduino object
-            obj.envSetup = envSetup;      % Store the EnvSetup instance
             
             % Creating grippers
             %obj.ur3eGripper = DualFingerGripper(); % Creating gripper for UR3e
@@ -422,7 +429,7 @@ classdef BrewBotMovements
 
         %% Reset objects to initial position
         function resetObjects(obj, hObject)
-        
+            
         end 
 
         %% Robot's program execution
@@ -463,7 +470,7 @@ classdef BrewBotMovements
                         pause(5)
 
                     case "Latte"
-                        obj.latteCreate(hObject)
+                        obj.latteCreate(hObject);
                         pause(5)
 
                     case "Ice coffee"
@@ -508,7 +515,7 @@ classdef BrewBotMovements
         %% Methods for drinks
         function espressoCreate(obj, hObject)
             % Function that creates an espresso drink.
-
+            set(obj.cupWithLid, 'Visible', 'off');
             % Grab cup (Nova2 only)
             nova2Waypoints = BrewBotMovements.GrabCup();
             obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
@@ -561,11 +568,14 @@ classdef BrewBotMovements
             nova2Waypoints = BrewBotMovements.ReturnNova2();
             ur3eWaypoints =  BrewBotMovements.MovetoFinishedCup();
             obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
-
+            
+            set(obj.cup, 'Visible', 'off');
+            set(obj.cupLid, 'Visible', 'off');
+            set(obj.cupWithLid, 'Visible', 'on');
             %UR3e pick up cup (Ur3e only)
             ur3eWaypoints =  BrewBotMovements.PickUpFinishedCup();
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices); %it should be cup with lid
-
+            
             %UR3e return (UR3e only)
             ur3eWaypoints =  BrewBotMovements.ReturnUR3e();
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []); %it should be cup with lid
