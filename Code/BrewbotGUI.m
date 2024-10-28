@@ -22,7 +22,7 @@ function varargout = BrewbotGUI(varargin)
     
     % Edit the above text to modify the response to help BrewbotGUI
     
-    % Last Modified by GUIDE v2.5 26-Oct-2024 23:03:12
+    % Last Modified by GUIDE v2.5 29-Oct-2024 00:08:16
     
     % Begin initialization code - DO NOT EDIT
     gui_Singleton = 1;
@@ -223,4 +223,3 @@ function ordersTxt_CreateFcn(hObject, eventdata, handles)
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
         set(hObject,'BackgroundColor','white');
     end
-
