@@ -103,7 +103,6 @@ classdef BrewBotMovements
                         deg2rad([86.4, 115, -151, -58.6, 93.6, 0]); % fold
                         deg2rad([7.2, 115, -151, -58.6, 93.6, 0]); % rotate
                         deg2rad([-14.4, 14.4, -28.8, -64.8, 93.6, 0]); % place pipe at initial
-                        deg2rad([0, 0, 0, 0, 0, 0]);               % Return to home position    
             ];
         end
 
