@@ -522,7 +522,68 @@ classdef BrewBotMovements
         %% Methods for drinks
         function espressoCreate(obj, hObject)
             % Function that creates an espresso drink.
+
+            % Grab cup (Nova2 only)
+            nova2Waypoints = BrewBotMovements.GrabCup();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
+            
+            % Place cup at machine (Nova2 only)
+            nova2Waypoints = BrewBotMovements.PlaceCupatMachine();
             obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, [], [], []);
+            
+            % Move to filter (Nova2 only)
+            nova2Waypoints = BrewBotMovements.MovetoFilter();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []); 
+            
+            %Portafilter to Grinder (Nova2 only)
+            nova2Waypoints = BrewBotMovements.PipetoGrinder();
+            obj.moveRobot(hObject, nova2Waypoints, obj.portafilter, obj.portafilterVertices, [], [], []);
+
+            %portafilter to machine (Nova2 only)
+            nova2Waypoints = BrewBotMovements.PipetoMachine();
+            obj.moveRobot(hObject, nova2Waypoints, obj.portafilter, obj.portafilterVertices, [], [], []);
+
+            %Return Cup move to it only (Nova2 only)
+            nova2Waypoints = BrewBotMovements.MovetoReturnCup();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
+
+            %Return Cup (Nova2 only)
+            nova2Waypoints = BrewBotMovements.ReturnCup();
+            obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, [], [], []);
+
+            %move to return filter (Nova2 only)
+            nova2Waypoints = BrewBotMovements.MovetoReturnPipe();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
+
+            %return filter (Nova2 only)
+            nova2Waypoints = BrewBotMovements.ReturnPipe();
+            obj.moveRobot(hObject, nova2Waypoints, obj.portafilter, obj.portafilterVertices, [], [], []);
+
+            %Return to initial for nova2 (Nova2 only)
+            nova2Waypoints = BrewBotMovements.ReturnHome();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
+
+            %move to cup lid (nova2 only)
+            nova2Waypoints = BrewBotMovements.MovetoLid();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
+
+            %place cup lid (nova2 only)
+            nova2Waypoints = BrewBotMovements.GrabLid();
+            obj.moveRobot(hObject, nova2Waypoints, obj.cupLid, obj.cupLidVertices, [], [], []);
+
+            %Nova return home + Ur3 move to cup
+            nova2Waypoints = BrewBotMovements.ReturnNova2();
+            ur3eWaypoints =  BrewBotMovements.MovetoFinishedCup();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
+
+            %UR3e pick up cup (Ur3e only)
+            ur3eWaypoints =  BrewBotMovements.PickUpFinishedCup();
+            obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices); %it should be cup with lid
+
+            %UR3e return (UR3e only)
+            ur3eWaypoints =  BrewBotMovements.ReturnUR3e();
+            obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []); %it should be cup with lid
+
         end
 
         function latteCreate(obj, hObject)
@@ -593,6 +654,9 @@ classdef BrewBotMovements
             ur3eWaypoints =  BrewBotMovements.PickUpFinishedCup();
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices); %it should be cup with lid
 
+            %UR3e return (UR3e only)
+            ur3eWaypoints =  BrewBotMovements.ReturnUR3e();
+            obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []); %it should be cup with lid
 
 
 
@@ -683,12 +747,81 @@ classdef BrewBotMovements
             ur3eWaypoints =  BrewBotMovements.PickUpFinishedCup();
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices); %it should be cup with lid
 
-
+            %UR3e return (UR3e only)
+            ur3eWaypoints =  BrewBotMovements.ReturnUR3e();
+            obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []); %it should be cup with lid
     
+        end
 
+        function flatwhiteCreate (obj, hObject)
+             % Grab cup + Move to milk jub movement
+            nova2Waypoints = BrewBotMovements.GrabCup();
+            ur3eWaypoints = BrewBotMovements.MovetoJug();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
+            
+            % Place cup at machine + Grab Jug
+            nova2Waypoints = BrewBotMovements.PlaceCupatMachine();
+            ur3eWaypoints = BrewBotMovements.GrabJug();
+            obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
+            
+            % Move to filter + Put Jug Below Frother
+            nova2Waypoints = BrewBotMovements.MovetoFilter();
+            ur3eWaypoints = BrewBotMovements.PutJugBelowFrother();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, obj.milkJug, obj.milkJugVertices); 
+            
+            %Portafilter to Grinder + Froth Milk
+            nova2Waypoints = BrewBotMovements.PipetoGrinder();
+            ur3eWaypoints = BrewBotMovements.FrothMilk();
+            obj.moveRobot(hObject, nova2Waypoints, obj.portafilter, obj.portafilterVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
 
+            %portafilter to machine + Finish Frothing
+            nova2Waypoints = BrewBotMovements.PipetoMachine();
+            ur3eWaypoints =  BrewBotMovements.FinishFrothing();
+            obj.moveRobot(hObject, nova2Waypoints, obj.portafilter, obj.portafilterVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
 
+            %Return Cup move to it only (Nova2 only)
+            nova2Waypoints = BrewBotMovements.MovetoReturnCup();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
 
+            %Return Cup (Nova2 only)
+            nova2Waypoints = BrewBotMovements.ReturnCup();
+            obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, [], [], []);
+
+            %move to return filter + pour milk
+            nova2Waypoints = BrewBotMovements.MovetoReturnPipe();
+            ur3eWaypoints =  BrewBotMovements.PickUpJug();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
+
+            %return filter + place milk jug back
+            nova2Waypoints = BrewBotMovements.ReturnPipe();
+            ur3eWaypoints =  BrewBotMovements.PlaceJugBack();
+            obj.moveRobot(hObject, nova2Waypoints, obj.portafilter, obj.portafilterVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
+
+            %Return to initial for nova2 and ur3e
+            nova2Waypoints = BrewBotMovements.ReturnHome();
+            ur3eWaypoints =  BrewBotMovements.ReturnBackafterPouring();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
+
+            %move to cup lid (nova2 only)
+            nova2Waypoints = BrewBotMovements.MovetoLid();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
+
+            %place cup lid (nova2 only)
+            nova2Waypoints = BrewBotMovements.GrabLid();
+            obj.moveRobot(hObject, nova2Waypoints, obj.cupLid, obj.cupLidVertices, [], [], []);
+
+            %Nova return home + Ur3 move to cup
+            nova2Waypoints = BrewBotMovements.ReturnNova2();
+            ur3eWaypoints =  BrewBotMovements.MovetoFinishedCup();
+            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
+
+            %UR3e pick up cup (Ur3e only)
+            ur3eWaypoints =  BrewBotMovements.PickUpFinishedCup();
+            obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices); %it should be cup with lid
+
+            %UR3e return (UR3e only)
+            ur3eWaypoints =  BrewBotMovements.ReturnUR3e();
+            obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []); %it should be cup with lid
 
 
         end
