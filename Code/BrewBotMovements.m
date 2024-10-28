@@ -10,15 +10,21 @@ classdef BrewBotMovements
         cup;
         cupLid; 
         milkJug;
+        teaBag;
+        cupWithLid;
+
         portafilter;
-        arduinoObj; % Arduino object for button monitoring;
-        ur3eGripper;
-        nova2Gripper;
         cupVertices;
         cupLidVertices;
         milkJugVertices;
         portafilterVertices;
-        envSetup; % Add this property to store the EnvSetup instance
+        teaBagVertices;
+        cupWithLidVertices;
+
+        arduinoObj; % Arduino object for button monitoring;
+        ur3eGripper;
+        nova2Gripper;
+        
     end
     
     %% Methods with 
@@ -325,7 +331,7 @@ classdef BrewBotMovements
 
     %% Initialisation method
     methods
-        function obj = BrewBotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, portafilter, arduinoObj, envSetup)
+        function obj = BrewBotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, portafilter, teaBag, arduinoObj)
             % Constructor to initialize the class with robots and serial
             obj.nova2 = r_nova2;
             obj.ur3e = r_ur3e;
@@ -343,10 +349,14 @@ classdef BrewBotMovements
 
             obj.portafilter = portafilter;
             obj.portafilterVertices = get(obj.portafilter, 'Vertices');
+            
+            obj.teaBag = teaBag;
+            obj.teaBagVertices = get(obj.teaBag, 'Vertices');
 
+            obj.cupWithLid = teaBag;
+            obj.cupWithLidVertices = get(obj.cupWithLid, 'Vertices');
 
             obj.arduinoObj = arduinoObj;  % Store the Arduino object
-            obj.envSetup = envSetup;      % Store the EnvSetup instance
             
             % Creating grippers
             %obj.ur3eGripper = DualFingerGripper(); % Creating gripper for UR3e
@@ -397,8 +407,6 @@ classdef BrewBotMovements
             objectCenter = mean(vertices);
             vertices = vertices - objectCenter;  % Shift vertices to center the object
 
-            disp(objectCenter);
-
             % Transform the object's vertices only relative to the current end-effector position
             % Use the transformation matrix 'tr' directly to compute the new vertices
 
@@ -418,21 +426,11 @@ classdef BrewBotMovements
             gripper.UpdateGripperPosition(endEffectorTr);
         end
         
-        
-        %% Reset environement + update verticies 
-        function resetVerices(obj, hObject)
-            % Reset the environment using initialEnvironment method
-            [obj.cup, obj.cupLid, obj.milkJug, obj.portafilter] = obj.envSetup.initialEnvironment();
 
-            obj.cupVertices = get(obj.cup, 'Vertices');
-            obj.cupLidVertices = get(obj.cupLid, 'Vertices');
-            obj.milkJugVertices = get(obj.milkJug, 'Vertices');
-            obj.portafilterVertices = get(obj.portafilter, 'Vertices');
+        %% Reset objects to initial position
+        function resetObjects(obj, hObject)
         
-            % Display confirmation
-            disp('Environment has been reset and object references updated.');
-
-        end
+        end 
 
         %% Robot's program execution
         
@@ -472,7 +470,7 @@ classdef BrewBotMovements
                         pause(5)
 
                     case "Latte"
-                        obj.latteCreate(hObject)
+                        obj.latteCreate(hObject);
                         pause(5)
 
                     case "Ice coffee"
@@ -489,10 +487,7 @@ classdef BrewBotMovements
                 end
                         
                 disp("Order is complete");
-
-                obj.resetVerices(hObject);
-                
-
+              
                 % Remove the processed order
                 handles = guidata(hObject);
                 handles.order_list(1) = [];
@@ -888,7 +883,7 @@ classdef BrewBotMovements
 
                     drawnow();
                     % Pause briefly to simulate real-time animation
-                    pause(0.01);
+                    pause(0.001);
   
             end
         end
@@ -901,6 +896,7 @@ classdef BrewBotMovements
 
                     
             q0_nova2 = obj.nova2.model.getpos();
+            
             q0_ur3e = obj.ur3e.model.getpos();
             qMatrix_nova2 = jtraj(q0_nova2, obj.nova2_defaultPos, n);
             qMatrix_ur3e = jtraj(q0_ur3e, obj.ur3e_defaultPos, n);

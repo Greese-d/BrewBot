@@ -74,9 +74,6 @@ function BrewbotGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 
     % Initialize the Environment class
     env = EnvSetup();
-
-    % Initialize the Environment class
-    handles.env = env;
     
     % Access environment objects
     nova2 = env.nova2;
@@ -85,9 +82,11 @@ function BrewbotGUI_OpeningFcn(hObject, eventdata, handles, varargin)
     cupLid = env.cupLid;
     milkJug = env.milkJug;
     portafilter = env.portafilter;
+    teaBag = env.teaBag;
+    cupWithLid = env.cupWithLid;
     
     % Create instance of movement class and inject robot objects and Arduino object
-    handles.movement = BrewBotMovements(nova2, ur3e, cup, cupLid, milkJug, portafilter, arduinoBoard, env);
+    handles.movement = BrewBotMovements(nova2, ur3e, cup, cupLid, milkJug, portafilter, teaBag, cupWithLid, arduinoBoard, env);
     
     % Create empty list of orders
     handles.order_list = strings(0);
