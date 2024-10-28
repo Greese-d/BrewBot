@@ -18,6 +18,7 @@ classdef BrewBotMovements
         cupLidVertices;
         milkJugVertices;
         portafilterVertices;
+        envSetup; % Add this property to store the EnvSetup instance
     end
     
     %% Methods with 
@@ -318,7 +319,7 @@ classdef BrewBotMovements
 
     %% Initialisation method
     methods
-        function obj = BrewBotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, portafilter, arduinoObj)
+        function obj = BrewBotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, portafilter, arduinoObj, envSetup)
             % Constructor to initialize the class with robots and serial
             obj.nova2 = r_nova2;
             obj.ur3e = r_ur3e;
@@ -339,6 +340,7 @@ classdef BrewBotMovements
 
 
             obj.arduinoObj = arduinoObj;  % Store the Arduino object
+            obj.envSetup = envSetup;      % Store the EnvSetup instance
             
             % Creating grippers
             %obj.ur3eGripper = DualFingerGripper(); % Creating gripper for UR3e
@@ -410,6 +412,22 @@ classdef BrewBotMovements
             gripper.UpdateGripperPosition(endEffectorTr);
         end
         
+        
+        %% Reset environement + update verticies 
+        function resetVerices(obj, hObject)
+            obj.envSetup = obj.envSetup.initialEnvironment();
+            obj.cup = obj.envSetup.cup;
+            obj.cupVertices = get(obj.cup, 'Vertices');
+
+            obj.cupLid = obj.envSetup.cupLid; 
+            obj.cupLidVertices = get(obj.cupLid, 'Vertices');  
+
+            obj.milkJug = obj.envSetup.milkJug;
+            obj.milkJugVertices = get(obj.milkJug, 'Vertices'); 
+
+            obj.portafilter = obj.envSetup.portafilter;
+            obj.portafilterVertices = get(obj.portafilter, 'Vertices');
+        end
 
         %% Robot's program execution
         
@@ -466,6 +484,9 @@ classdef BrewBotMovements
                 end
                         
                 disp("Order is complete");
+                obj.envSetup = obj.envSetup.initialEnvironment(); 
+                obj.resetVerices(hObject);
+                
 
                 % Remove the processed order
                 handles = guidata(hObject);
@@ -635,11 +656,12 @@ classdef BrewBotMovements
                     else
                         obj.ur3e.model.animate(ur3eQMatrix(end, :));  % Hold last position
                     end
-                    
+                end
+
                     drawnow();
                     % Pause briefly to simulate real-time animation
                     pause(0.01);
-                end
+  
             end
         end
 
