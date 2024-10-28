@@ -331,7 +331,7 @@ classdef BrewBotMovements
 
     %% Initialisation method
     methods
-        function obj = BrewBotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, portafilter, teaBag, arduinoObj)
+        function obj = BrewBotMovements(r_nova2, r_ur3e, cup, cupLid, milkJug, portafilter, teaBag, cupWithLid, arduinoObj)
             % Constructor to initialize the class with robots and serial
             obj.nova2 = r_nova2;
             obj.ur3e = r_ur3e;
@@ -353,7 +353,7 @@ classdef BrewBotMovements
             obj.teaBag = teaBag;
             obj.teaBagVertices = get(obj.teaBag, 'Vertices');
 
-            obj.cupWithLid = teaBag;
+            obj.cupWithLid = cupWithLid;
             obj.cupWithLidVertices = get(obj.cupWithLid, 'Vertices');
 
             obj.arduinoObj = arduinoObj;  % Store the Arduino object
