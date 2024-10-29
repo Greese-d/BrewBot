@@ -13,49 +13,14 @@ cup = env.cup;
 cupLid = env.cupLid;
 milkJug = env.milkJug;
 portafilter = env.portafilter;
+baby = env.baby;
+babyVertices = get(baby, 'Vertices');
+
+
 
 % Set up the environment with various objects (shelves, barriers, a person model, emergency stops, and a table).
 hold on;  % Hold the current plot for multiple objects
 axis equal;  % Maintain equal scaling for all axes
-axis([-1.8 1.8 -1.8 1.8 -0.1 1.5]);  % Set the axis limits
-view(210, 20);
-
-% Define the bounding boxes
-boundingBoxMin1 = [-0.7, -0.55, 0.65];
-boundingBoxMax1 = [-0.2, -0.2, 1.15];
-plotcube([0.5, 0.4, 0.6], boundingBoxMin1, 0.1, [1, 0, 0]);
-
-boundingBoxMin2 = [0.05, -0.5, 0.65];
-boundingBoxMax2 = [0.85, -0.2, 1.25];
-plotcube([0.8, 0.3, 0.6], boundingBoxMin2, 0.1, [0, 0, 1]);
-
-% Third bounding box at (0.75, -0.5, 0.65) with size 50x25x50 cm
-boundingBoxMin3 = [0.9, -0.3, 0.65];                     % Min corner of the third box
-boundingBoxMax3 = [1.1, -0.2, 1.15];  % Max corner of the third box
-% Draw the third bounding box (optional, for visualization)
-plotcube([0.2, 0.2, 0.5], boundingBoxMin3, 0.1, [0, 1, 0]);  % A green semi-transparent box
-
-% Clear command window and workspace
-clc;
-clear all;
-close all;
-
-% Initialize the Environment class
-env = EnvSetup();
-
-% Access environment objects
-nova2 = env.nova2;
-ur3e = env.ur3e;
-cup = env.cup;
-cupLid = env.cupLid;
-milkJug = env.milkJug;
-portafilter = env.portafilter;
-
-% Set up the environment with various objects (shelves, barriers, a person model, emergency stops, and a table).
-hold on;  % Hold the current plot for multiple objects
-axis equal;  % Maintain equal scaling for all axes
-axis([-1.8 1.8 -1.8 1.8 -0.1 1.5]);  % Set the axis limits
-view(210, 20);
 
 % Define the bounding boxes
 boundingBoxMin1 = [-0.7, -0.55, 0.65];
@@ -107,20 +72,26 @@ qWaypointsNova2 = [
 ];
 qMatrixNova2 = InterpolateWaypointRadians(qWaypointsNova2, deg2rad(4));
 qMatrixNova2_resampled = resampleTrajectory(qMatrixNova2, 600);
-
+c = 0;
 % Animate both robots
 for i = 2:size(qMatrix2_resampled, 1)  % Start loop from the second step to avoid initial collision check
     % Animate UR3e and Nova2
     ur3e.model.animate(qMatrix2_resampled(i, :));
     nova2.model.animate(qMatrixNova2_resampled(i, :));
-
+    c = c - 0.05;
+    x = transl(c, 0, 0);
+    transformedVertices = [babyVertices,ones(size(babyVertices,1),1)] * (x)';
+    % Update the object's vertices
+    set(baby, 'Vertices', transformedVertices(:, 1:3));
     % Get end-effector positions
+
+    babyPosition = mean(transformedVertices(:, 1:3), 1);
+
+
     ur3eEndEffector = ur3e.model.fkine(qMatrix2_resampled(i, :)).t;
     nova2EndEffector = nova2.model.fkine(qMatrixNova2_resampled(i, :)).t;
     
     %% for the light plane
-    % Get position of other objects, e.g., cup
-    cupPosition = cup.model.fkine(cup.model.getpos()).t;
 
     % Collision check for each bounding box
     for j = 1:size(boundingBoxes, 1)
@@ -137,7 +108,7 @@ for i = 2:size(qMatrix2_resampled, 1)  % Start loop from the second step to avoi
 
         %% this is for an object that passes through the plane
         % Check collision for cup
-        if isInsideBoundingBox(cupPosition, boundingBoxes{j, 1}, boundingBoxes{j, 2})
+        if isInsideBoundingBox(babyPosition', boundingBoxes{j, 1}, boundingBoxes{j, 2})
             disp('Object coming in! Movement stopped. Please reset');
             return;
         end
@@ -186,38 +157,5 @@ function plotcube(dim, pos, alpha, color)
 end
 
 
-function qMatrix_resampled = resampleTrajectory(qMatrix, numSteps)
-    currentSteps = size(qMatrix, 1);
-    qMatrix_resampled = interp1(1:currentSteps, qMatrix, linspace(1, currentSteps, numSteps));
-end
-
-function qMatrix = InterpolateWaypointRadians(waypointRadians, maxStepRadians)
-    if nargin < 2
-        maxStepRadians = deg2rad(1);
-    end
-    qMatrix = [];
-    for i = 1:size(waypointRadians, 1) - 1
-        qMatrix = [qMatrix; FineInterpolation(waypointRadians(i, :), waypointRadians(i + 1, :), maxStepRadians)]; %#ok<AGROW>
-    end
-end
-
-function qMatrix = FineInterpolation(q1, q2, maxStepRadians)
-    if nargin < 3
-        maxStepRadians = deg2rad(1);
-    end
-    steps = 2;
-    while ~isempty(find(maxStepRadians < abs(diff(jtraj(q1, q2, steps))), 1))
-        steps = steps + 1;
-    end
-    qMatrix = jtraj(q1, q2, steps);
-end
-
-function plotcube(dim, pos, alpha, color)
-    vertex_matrix = [0 0 0; 1 0 0; 1 1 0; 0 1 0; 0 0 1; 1 0 1; 1 1 1; 0 1 1];
-    face_matrix = [1 2 6 5; 2 3 7 6; 3 4 8 7; 4 1 5 8; 1 2 3 4; 5 6 7 8];
-    vertex_matrix = vertex_matrix .* dim;
-    vertex_matrix = vertex_matrix + repmat(pos, 8, 1);
-    patch('Vertices', vertex_matrix, 'Faces', face_matrix, 'FaceColor', color, 'FaceAlpha', alpha);
-end
 
 

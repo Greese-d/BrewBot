@@ -1183,6 +1183,8 @@ classdef BrewBotMovements
                 ur3eQMatrix = [];
             end
 
+            babySteps = 0;
+
             % Ensure both robots move for the same number of steps
             steps = max(size(nova2QMatrix, 1), size(ur3eQMatrix, 1)); % make a function
 
@@ -1190,8 +1192,9 @@ classdef BrewBotMovements
             for i = 1:steps
                 
 
-                % Can be commented to stop using collision detection for baby
-                obj.moveBaby(-0.01);
+                %
+                babySteps = babySteps + 0.01;
+                obj.moveBaby(babySteps);
 
                 % Check for emergency stop
                 if checkEmergencyStop(obj, hObject)
