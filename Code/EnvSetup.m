@@ -63,9 +63,10 @@ classdef EnvSetup
             obj.cup = PlaceObject('Cup.ply', [x+0.15, y+0.2, z+0.65]);
             obj.cupLid = PlaceObject('CupLid.ply', [x+0.1, y+0.3, z+0.65]);
             obj.milkJug = PlaceObject('MilkJug.ply', [x-0.05, y+0.25, z+0.65]);
-            obj.portafilter = PlaceObject('EspressoHandle.ply', [x+0, y+0.4, z+0.7]);
+            obj.portafilter = PlaceObject('EspressoHandle.ply', [x+0.05, y+0.4, z+0.7]);
             obj.teaBag = PlaceObject('TeaBag.ply', [x-0.34, y+0.35, z+0.6]);
             obj.cupWithLid = PlaceObject('CupWithLid.ply', [x, y+0.35, z+0.65]);
+            
 
             set(obj.cupWithLid, 'Visible', 'off');
         end 
