@@ -4,7 +4,19 @@ clear all;
 close all;
 
 % Call EnvSetup function to initialize the environment and UR3e only
-[nova2, ur3e, cup, cupLid, milkJug, iceCube, portafilter] = EnvSetup();  % Includes both nova2 and ur3e robots
+env = EnvSetup();
+    
+% Access environment objects
+nova2 = env.nova2;
+ur3e = env.ur3e;
+cup = env.cup;
+cupLid = env.cupLid;
+milkJug = env.milkJug;
+portafilter = env.portafilter;
+teaBag = env.teaBag;
+cupWithLid = env.cupWithLid;
+
+% Create instance of movement class and inject robot objects and Arduino object
 
 % Function to set up the environment with various objects (shelves, barriers,
 % a person model, emergency stops, and a table).
