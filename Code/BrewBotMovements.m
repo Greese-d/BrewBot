@@ -767,6 +767,7 @@ classdef BrewBotMovements
             nova2Waypoints = BrewBotMovements.ReturnNova2();
             ur3eWaypoints =  BrewBotMovements.MovetoFinishedCup();
             obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
+           
 
             set(obj.cup, 'Visible', 'off');
             set(obj.cupLid, 'Visible', 'off');
