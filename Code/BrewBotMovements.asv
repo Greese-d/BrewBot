@@ -463,10 +463,8 @@ classdef BrewBotMovements
                         set(handles.btn_reset, "Enable", "on");
                         set(handles.btn_resume, "Enable", "on");
                         handles.isStopped = true;
-                        guidata(hObject, handles);
-
-                        %Might not be required
-                        %handles.movement.handleEmergency(hObject);
+                        guidata(h)
+                        handles.movement.handleEmergency(hObject);
                         
                     end
                 catch ME
@@ -607,10 +605,7 @@ classdef BrewBotMovements
             obj.updateOrderListDisplay(hObject);
 
             % Only start processing orders if not already brewing
-            
-            if ~handles.isBrewing
-                handles.isBrewing = true;
-                guidata(hObject, handles)
+            if obj.state == "Standby"
                 obj.state = "Brewing";  % Set isBrewing to true in handles
                 obj.ProcessOrders(hObject);  % Start order processing
             end
