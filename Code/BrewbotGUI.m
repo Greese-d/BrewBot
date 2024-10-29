@@ -22,7 +22,7 @@ function varargout = BrewbotGUI(varargin)
     
     % Edit the above text to modify the response to help BrewbotGUI
     
-    % Last Modified by GUIDE v2.5 30-Oct-2024 01:01:10
+    % Last Modified by GUIDE v2.5 30-Oct-2024 02:44:20
     
     % Begin initialization code - DO NOT EDIT
     gui_Singleton = 1;
@@ -681,12 +681,15 @@ function showTeachOff(handles)
 for i = 1:6
     sliderName = sprintf('q%d_ur3e', i);  % Generate names q1_ur3e, q2_ur3e, ..., q6_ur3e
     set(handles.(sliderName), 'Visible', 'off');
+    set(handles.(['q', num2str(i), 's_ur3e']), 'Visible', 'off');
 end
 
 % Disable sliders for nova2 (q1_nova2 to q2_nova2)
 for i = 1:6
     sliderName = sprintf('q%d_nova2', i);  % Generate names q1_nova2 and q2_nova2
     set(handles.(sliderName), 'Visible', 'off');
+    set(handles.(['q', num2str(i), 's_nova2']), 'Visible', 'off');
+    
 end
 
 % Disable text fields for UR3e (x_ur3e, y_ur3e, z_ur3e)
@@ -700,6 +703,11 @@ textFieldsNova2 = {'x_nova2', 'y_nova2', 'z_nova2'};
 for i = 1:length(textFieldsNova2)
     set(handles.(textFieldsNova2{i}), 'Visible', 'off');
 end
+
+for i = 5:24
+    set(handles.(['text', num2str(i)]), 'Visible', 'off');
+end
+
 set(handles.btn_espresso, "Visible", "on")
 set(handles.btn_flatwhite, "Visible", "on")
 set(handles.btn_latte, "Visible", "on")
@@ -711,13 +719,17 @@ function showTeachOn(handles)
 for i = 1:6
     sliderName = sprintf('q%d_ur3e', i);  % Generate names q1_ur3e, q2_ur3e, ..., q6_ur3e
     set(handles.(sliderName), 'Visible', 'on');
+    set(handles.(['q', num2str(i), 's_ur3e']), 'Visible', 'on');
 end
 
 % Disable sliders for nova2 (q1_nova2 to q2_nova2)
 for i = 1:6
     sliderName = sprintf('q%d_nova2', i);  % Generate names q1_nova2 and q2_nova2
     set(handles.(sliderName), 'Visible', 'on');
+    set(handles.(['q', num2str(i), 's_nova2']), 'Visible', 'on');
 end
+
+updateData(handles);
 
 % Disable text fields for UR3e (x_ur3e, y_ur3e, z_ur3e)
 textFieldsUR3e = {'x_ur3e', 'y_ur3e', 'z_ur3e'};
@@ -729,6 +741,10 @@ end
 textFieldsNova2 = {'x_nova2', 'y_nova2', 'z_nova2'};
 for i = 1:length(textFieldsNova2)
     set(handles.(textFieldsNova2{i}), 'Visible', 'on');
+end
+
+for i = 5:24
+    set(handles.(['text', num2str(i)]), 'Visible', 'on');
 end
 
 set(handles.btn_espresso, "Visible", "off")
@@ -753,6 +769,49 @@ function updateJointAngle(handles, robotName, jointIndex, jointValue)
         % Update robot visualization (optional)
         handles.movement.nova2.model.animate(q);
     end
+
+    updateData(handles);
     
     % Save updated handles structure
     %guidata(handles.figure1, handles);  % Replace 'figure1' with your figure name
+
+
+function updateData(handles)
+for i = 1:6
+    % Get slider position
+    slider_value_ur3e = get(handles.(['q', num2str(i), '_ur3e']), 'Value');
+    % Set corresponding text field with slider value
+    set(handles.(['q', num2str(i), 's_ur3e']), 'String', num2str(round(rad2deg(slider_value_ur3e))));
+
+    % Get slider position
+    slider_value_nova2 = get(handles.(['q', num2str(i), '_nova2']), 'Value');
+    % Set corresponding text field with slider value
+    set(handles.(['q', num2str(i), 's_nova2']), 'String', num2str(round(rad2deg(slider_value_nova2))));
+end
+
+for i = 1:6
+    q_nova2(i) = get(handles.(['q', num2str(i), '_nova2']), 'Value');
+    q_ur3e(i) = get(handles.(['q', num2str(i), '_ur3e']), 'Value');
+end
+
+% Calculate the end-effector position for nova2
+cords_nova2 = handles.movement.nova2.model.fkine(q_nova2).t;
+x_nova2 = round(cords_nova2(1), 2);  % X-coordinate of the end-effector
+y_nova2 = round(cords_nova2(2), 2);  % Y-coordinate of the end-effector
+z_nova2 = round(cords_nova2(3), 2);  % Z-coordinate of the end-effector
+
+% Populate the x, y, and z fields for nova2
+set(handles.x_nova2, 'String', num2str(x_nova2));
+set(handles.y_nova2, 'String', num2str(y_nova2));
+set(handles.z_nova2, 'String', num2str(z_nova2));
+
+% Calculate the end-effector position for ur3e
+cords_ur3e = handles.movement.ur3e.model.fkine(q_ur3e).t;
+x_ur3e = round(cords_ur3e(1), 2);  % X-coordinate of the end-effector
+y_ur3e = round(cords_ur3e(2), 2);  % Y-coordinate of the end-effector
+z_ur3e = round(cords_ur3e(3), 2);  % Z-coordinate of the end-effector
+
+% Populate the x, y, and z fields for ur3e
+set(handles.x_ur3e, 'String', num2str(x_ur3e));
+set(handles.y_ur3e, 'String', num2str(y_ur3e));
+set(handles.z_ur3e, 'String', num2str(z_ur3e));
