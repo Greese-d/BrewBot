@@ -126,8 +126,7 @@ classdef BrewBotMovements
 
         function q2Waypoints = ReturnHome()
             q2Waypoints = [
-                %deg2rad([-25.4, 35.4, -80.8, -64.8, 93.6, 0]); % place pipe at initial
-                        deg2rad([-20.4, 35.4, -80.8, -64.8, 93.6, 0]); % place pipe at initial
+                        deg2rad([-20.4, 35.4, -72.8, -64.8, 93.6, 0]); % place pipe at initial
                         deg2rad([0, 0, 0, 0, 0, 0]);               % Return to home position    
             ];
         end
@@ -183,7 +182,7 @@ classdef BrewBotMovements
             q2Waypoints = [
                         deg2rad([122, -50.4, 115, -151, 0, 0]);    % Pick cup
                         deg2rad([162, -50.4, 122, 0, 0, 0]);      % Rotate
-                        deg2rad([176, -14.4, 12.2, 5, 108, 0]);  % Grab cup
+                        deg2rad([176, -14.4, 12.2, 5, 108, -90]);  % Grab cup
                 
             ];
         end
@@ -208,6 +207,7 @@ classdef BrewBotMovements
 
         function q2Waypoints = MovetoJugAfterIce() %add time before this
             q2Waypoints = [
+                        deg2rad([176, -14.4, 12.2, 5, 108, -90]);  % drop cup
                         deg2rad([162, -57.7, 100, -43.2, 79.2, 0]);  % Put cup down
                         deg2rad([122, -50.4, 115, -151, 0, 0]);    % Pick Jug  
             ];
@@ -245,50 +245,50 @@ classdef BrewBotMovements
         end
         %% add tea
         %Nova2 movements
-        function waypoints = gotoCupforTea()
-            waypoints   = [
+        function q2Waypoints = gotoCupforTea()
+            q2Waypoints   = [
                         deg2rad([0, 0, 0, 0, 0, 0]);              % Initial position
                         deg2rad([10, 35.2, -85.2, -93.6, 180, -45]); % Grab cup position    
                 ];
         end
 
-        function waypoints = moveCupforTea()
-            waypoints = [
+        function q2Waypoints = moveCupforTea()
+            q2Waypoints = [
                         deg2rad([10, 35.2, -85.2, -93.6, 180, -45]); % Grab cup position 
                         deg2rad([-7.2, 49.6, -85.2, -93.6, 180, -45]); % lift cup
                         deg2rad([-7.2, -15.2, 7.2, -83.6, 180, 0]);  % Place cup
                 ];
         end
 
-        function waypoints = gobackafterTea()
-            waypoints = [
+        function q2Waypoints = gobackafterTea()
+            q2Waypoints = [
                         deg2rad([-7.2, -15.2, 7.2, -83.6, 180, 0]);  % Place cup back
                         deg2rad([0, 0, 0, 0, 0, 0]);              % Initial position
                 ];
         end
         %UR3e movements
-        function teaWaypoints = movetoTeaBag()
-            teaWaypoints = [
+        function q2Waypoints = movetoTeaBag()
+            q2Waypoints = [
                         deg2rad([0, 0, 0, 0, 0, 0]);                        % Initial position
-                        deg2rad([0, -86.4, 144, -180, -93.6, 0]);           % Fold position for tea bag
-                        deg2rad([173, -86.4, 144, -180, -93.6, 0]);         % Rotate to pour tea bag
-                        deg2rad([173, -64.8, 144, -180, -93.6, 0]);         % Lower robot down
+                        deg2rad([0, -86.4, 144, -180, -93.6, 180]);           % Fold position for tea bag
+                        deg2rad([173, -86.4, 144, -180, -93.6, 180]);         % Rotate to pour tea bag
+                        deg2rad([173, -64.8, 144, -180, -93.6, 180]);         % Lower robot down
             ];
         end
 
-        function waypoints = putTeaBag()
-            waypoints = [
-                        deg2rad([173, -64.8, 144, -180, -93.6, 0]);         % Lower robot down
-                        deg2rad([173, -86.4, 144, -180, -93.6, 0]);         % Lift tea bag up
-                        deg2rad([173, -43.2, 50.4, -115, -93.6, 0]);        % Place tea bag in cup
+        function q2Waypoints = putTeaBag()
+            q2Waypoints = [
+                        deg2rad([173, -64.8, 144, -180, -93.6, 180]);         % Lower robot down
+                        deg2rad([173, -86.4, 144, -180, -93.6, 180]);         % Lift tea bag up
+                        deg2rad([173, -43.2, 50.4, -115, -93.6, 180]);        % Place tea bag in cup
             ];
         end
 
-        function waypoints = otwGrabCup()
-            waypoints = [
-                        deg2rad([173, -43.2, 50.4, -115, -93.6, 0]);        % Place tea bag in cup
-                        deg2rad([187, -43.2, 50.4, -115, -180, 0]);         % Move above cup
-                        deg2rad([187, -21.6, 50.4, -115, -180, 0]);         % Grab cup
+        function q2Waypoints = otwGrabCup()
+            q2Waypoints = [
+                        deg2rad([173, -43.2, 50.4, -115, -93.6, 180]);        % Place tea bag in cup
+                        deg2rad([187, -43.2, 50.4, -115, -180, 180]);         % Move above cup
+                        deg2rad([187, -21.6, 50.4, -115, -180, 180]);         % Grab cup
             ];
         end
 
@@ -296,25 +296,24 @@ classdef BrewBotMovements
         
         function q2Waypoints = AddHotWater()
             q2Waypoints = [
-                        deg2rad([187, -21.6, 50.4, -115, -180, 0]);         % Grab cup
-                        deg2rad([187, -57.6, 108, -144, -180, 0]);          % Fold position to add hot water
-                        deg2rad([173, -50.4, 101, -144, -180, 0]);          % Pour hot water
-                            
+                        deg2rad([187, -21.6, 50.4, -115, -180, 180]);         % Grab cup
+                        deg2rad([187, -57.6, 108, -144, -180, 180]);          % Fold position to add hot water
+                        deg2rad([173, -50.4, 101, -144, -180, 180]);          % Pour hot water
             ];
         end
         
         function q2Waypoints = ReturnHotWaterCup()
             q2Waypoints =[
-                        deg2rad([173, -50.4, 101, -144, -180, 0]);          % Pour hot water
-                        deg2rad([187, -57.6, 180, -144, -180, 0]);          % Fold to return cup
-                        deg2rad([187, -21.6, 50.4, -115, -180, 0]);         % Return cup
+                        deg2rad([173, -50.4, 101, -144, -180, 180]);          % Pour hot water
+                        deg2rad([187, -57.6, 180, -144, -180, 180]);          % Fold to return cup
+                        deg2rad([187, -21.6, 50.4, -115, -180, 180]);         % Return cup
             ];
         end
         
         
         function q2Waypoints = ReturnBotBack()
             q2Waypoints =[
-                        deg2rad([187, -21.6, 50.4, -115, -180, 0]);         % Return cup
+                        deg2rad([187, -21.6, 50.4, -115, -180, 180]);         % Return cup
                         deg2rad([345, -21.6, 50.4, -115, -180, 0]);         % Go home
                         deg2rad([0, 0, 0, 0, 0, 0, 0]);                     % Reset to initial position
             ];
@@ -358,15 +357,15 @@ classdef BrewBotMovements
                     deg2rad([0, -72, 101, 0, 108, 0]);            % Fold position
                     deg2rad([-115, -72, 101, 0, 108, 0]);          % Rotate to cup
                     deg2rad([-187, -72, 101, 0, 108, 0]);       % Rotate and go down
-                    deg2rad([-187, -43.2, 57.6, 0, 108, 0]);     % Stretch towards cup placement
+                    deg2rad([-187, -43.2, 57.6, -10, 108, 0]);     % Stretch towards cup placement
             ];
         end
         
         function q2Waypoints = PickUpFinishedCup()
             q2Waypoints = [
-                    deg2rad([-187, -43.2, 57.6, 0, 108, 0]); % Stretch towards cup placement
-                    deg2rad([-187, -72, 101, 0, 108, 0]);       %  grab up
-                    deg2rad([-115, -72, 101, 0, 108, 0]);          % Rotate 
+                    deg2rad([-187, -43.2, 57.6, -10, 108, 0]); % Stretch towards cup placement
+                    deg2rad([-187, -72, 101, -10, 108, 0]);       %  grab up
+                    deg2rad([-115, -72, 101, -10, 108, 0]);          % Rotate 
                     deg2rad([0, -10, 7.2, 0, 93.6, 0]);         % Place Cup
             ];
         end
@@ -530,7 +529,7 @@ classdef BrewBotMovements
             cupLidTransformedVertices= [obj.cupLidVerticesInitial,ones(size(obj.cupLidVerticesInitial,1),1)];
             % Update the object's vertices
             set(obj.cupLid, 'Vertices', cupLidTransformedVertices(:, 1:3));
-            set(obj.cup, 'Visible', 'on');
+            set(obj.cupLid, 'Visible', 'on');
 
             milkJugTransformedVertices= [obj.milkJugVerticesInitial,ones(size(obj.milkJugVerticesInitial,1),1)];
             % Update the object's vertices
