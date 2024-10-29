@@ -5,5 +5,6 @@ while flag
     pause(1)
     disp("still here")
     flag = false;
+    disp("Still here after change of flag")
 end
 disp("finished")

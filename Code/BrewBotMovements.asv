@@ -31,6 +31,8 @@ classdef BrewBotMovements
         arduinoObj; % Arduino object for button monitoring;
         ur3eGripper;
         nova2Gripper;
+
+        state;
         
     end
     
@@ -70,7 +72,6 @@ classdef BrewBotMovements
                         deg2rad([-14.4, 7.4, -28.8, -64.8, 93.6, 0]); % Pick pipe
                         deg2rad([7.2, 101, -151, -36, 93.6, 0]);    % Lift pipe
                         deg2rad([151, 101, -151, -36, 93.6, 0]);    % Rotate with pipe
-                        deg2rad([151, 79.2, -151, -36, 93.6, 0]);    % Rotate with pipe
                         deg2rad([151, 79.2, -145, -36, 93.6, 0]);
                         deg2rad([151, 79.2, -145, -26, 93.6, 150]);   % Place pipe
         
@@ -110,7 +111,8 @@ classdef BrewBotMovements
                         %deg2rad([-7.2, -7.2, 7.2, -93.6, 180, 0]);
                         deg2rad([-7.2, -15.2, 7.2, -83.6, 180, 0]);  % Place cup back
                         deg2rad([7.2, 57.6, -122, -21.6, 180, 0]);  % Pull back
-                        deg2rad([50.4, 86.4, -158, -21.6, 180, 90]); % Pull back for next action
+                        deg2rad([7.2, 86.4, -158, -21.6, 180, 90]); % Pull back for next action
+                        deg2rad([50.4, 115, -115, -93.6, 93.6, 90]); % Pull back for next action
                         deg2rad([86.4, 115, -115, -93.6, 93.6, 90]); % Take pipe at coffee machine
             ];
         end
@@ -227,17 +229,16 @@ classdef BrewBotMovements
             q2Waypoints = [
                         deg2rad([158, -58.8, 80.4, -86.2, 0, 50]);  % Pour
                         deg2rad([151, -72.0, 137, -158, 0, 0]);    % Lift
-                        deg2rad([151, -72.0, 137, -158, 0, 0]);    % Rotate
-                        deg2rad([151, -38.0, 108, -173, 0, 0]);    % Get in position
-                        deg2rad([144, -18.8, 50.4, -108, 0, -10]);   % Put at initial jug position
+                        deg2rad([136, -72.0, 137, -158, 0, 0]);    
+                        deg2rad([136, -38.0, 108, -173, 0, 0]);    % Get in position
+                        deg2rad([136, -18.8, 50.4, -108, 0, -10]);   % Put at initial jug position
             
             ];
         end
         
         function q2Waypoints = ReturnBackafterPouring()
             q2Waypoints = [
-                        %deg2rad([144, -18.8, 50.4, -108, 0, 0]);   % Put at initial jug position
-                        deg2rad([144, -18.8, 50.4, -108, 0, -10]);   % Put at initial jug position
+                        deg2rad([136, -18.8, 50.4, -108, 0, -10]);   % Put at initial jug position
                         deg2rad([115, -38.0, 108, -173, 0, 0]);    % Get in position again
                         deg2rad([115, -59.6, 144, -173, 0, 0]);    % Fold
                         deg2rad([0, -59.6, 144, -173, 0, 0]);      % Rotate
@@ -301,14 +302,13 @@ classdef BrewBotMovements
             q2Waypoints = [
                     deg2rad([14.4, 43.2, -108, -14.4, 86.4, 0]);  % Pick lid
                     deg2rad([14.4, 57.6, -108, -14.4, 86.4, 0]);  % Lift lid
-                    deg2rad([5, 20.8, -45.4, -67.6, 101.4, 0]);  % Place lid %CHANGED
+                    deg2rad([5, 28.8, -51.4, -67.6, 101.4, 0]);  % Place lid
             ];
         end
         
         function q2Waypoints = ReturnNova2()
             q2Waypoints = [
-                    %deg2rad([5, 28.8, -50.4, -57.6, 86.4, 0]);
-                    deg2rad([5, 28.8, -60.4, -67.6, 101.4, 0]);  % Place lid
+                    deg2rad([5, 28.8, -51.4, -67.6, 101.4, 0]);  % Place lid
                     deg2rad([14.4, 57.6, -108, -14.4, 86.4, 0]);  % Fold back
                     deg2rad([0, 43.2, -108, -14.4, 86.4, 0]);  % Rotate
                     deg2rad([0, 0, 0, 0, 0, 0]);  % back home  
@@ -381,6 +381,8 @@ classdef BrewBotMovements
             obj.cupWithLidVerticesInitial = obj.cupWithLidVertices;
 
             obj.arduinoObj = arduinoObj;  % Store the Arduino object
+
+            obj.state = "Standby";
             
             % Creating grippers
             %obj.ur3eGripper = DualFingerGripper(); % Creating gripper for UR3e
@@ -420,6 +422,31 @@ classdef BrewBotMovements
                     % stop = true;  % Uncomment if you want to stop the process in case of an Arduino error
                 end
             end
+        end
+
+        function obj = handleEmergency(obj, hObject) 
+            obj.state = "Stopped";
+            ProcessOrders(obj, hObject);
+        end
+
+        function obj = handleReset(obj, hObject) 
+            obj.state = "Resetting";
+            ProcessOrders(obj, hObject);
+        end
+
+        function obj = handleResume(obj, hObject)
+            obj.state = "Resuming";
+            ProcessOrders(obj, hObject);
+        end
+
+        function obj = handleBrew(obj, hObject)
+            obj.state = "Brewing";
+            ProcessOrders(obj, hObject);
+        end
+        
+        function obj = handleStandby(obj, hObject)
+            obj.state = "Standby";
+            ProcessOrders(obj, hObject);
         end
 
 
@@ -524,73 +551,81 @@ classdef BrewBotMovements
         function handleOrder(obj, hObject)
             handles = guidata(hObject);
             disp("Received a new order: " + handles.order_list(end))
-            disp("Current list of orders: " + handles.order_list(:))
             obj.updateOrderListDisplay(hObject)
-            
 
             % Only start processing orders if not already brewing
-            if ~handles.isBrewing
-                handles.isBrewing = true;  % Set isBrewing to true in handles
-                guidata(hObject, handles); % Sync GUI data
+            if obj.state == "Standby"
+                obj.state = "Brewing";  % Set isBrewing to true in handles
                 obj.ProcessOrders(hObject);  % Start order processing
             end
         end
         
         % Processing orders - Calls for making drinks go here
         % this function observes orders from GUI)
-        function ProcessOrders(obj, hObject)
+        function obj = ProcessOrders(obj, hObject)
             handles = guidata(hObject);
+            disp("Current state " + obj.state)
 
-            % while ~isempty(handles.order_list)
-            while ~isempty(handles.order_list)
-                order = handles.order_list(1);  % Get the first order
-                disp("Brewbot is making the order for " + order);  % Execute the order
+            switch obj.state
+                case "Brewing"
+                    while ~isempty(handles.order_list)
+                        order = handles.order_list(1);  % Get the first order
+                        disp("Brewbot is making the order for " + order);  % Execute the order
 
-                % Process the order (espresso_test or other functions)
-                switch order
-                    case "Espresso"
-                        obj.espressoCreate(hObject);
+                        % Process the order (espresso_test or other functions)
+                        switch order
+                            case "Espresso"
+                                obj.espressoCreate(hObject);
 
-                    case "Flat white"
-                        disp("Here should be function for making Flat white")
-                        pause(5)
+                            case "Flat white"
+                                obj.flatwhiteCreate(hObject);
 
-                    case "Latte"
-                        obj.latteCreate(hObject);
-                        pause(5)
+                            case "Latte"
+                                obj.latteCreate(hObject);
 
-                    case "Ice coffee"
-                        disp("Here should be function for making Ice coffee")
-                        pause(5)
+                            case "Ice coffee"
+                                obj.iceCoffeeCreate(hObject);
 
-                    case "Tea"
-                        disp("Here should be function for making Tea")
-                        pause(5)
+                            case "Tea"
+                                disp("Here should be function for making Tea")
+                                pause(5)
 
-                    otherwise
-                        disp("Invalid item ordered")
-                end
-                
-                handles = guidata(hObject);
-                if isempty(handles.order_list)
-                    break
-                end
+                            otherwise
+                                disp("Invalid item ordered")
+                        end
 
-                disp("Order is complete");
-                
-                resetObjects(obj);
 
-                % Remove the processed order
-                handles = guidata(hObject);
-                handles.order_list(1) = [];
-                guidata(hObject, handles);  % Update GUI data
-                obj.updateOrderListDisplay(hObject)
+
+                        disp("Order is complete");
+                        resetObjects(obj);
+
+                        % Remove the processed order
+                        handles = guidata(hObject);
+                        handles.order_list(1) = [];
+                        guidata(hObject, handles);  % Update GUI data
+                        obj.updateOrderListDisplay(hObject)
+
+                    end
+
+                    % Set isBrewing to false only when all orders are processed
+                    obj.handleStandby(hObject);
+
+                case "Stopped"
+                  
+                    disp("Was stopped")
+                    obj.handleStandby(hObject);
+                    
+                case "Resuming"
+                case "Resetting"
+                    obj.resetRobots;
+                    obj.handleStandby(hObject);
+                case "Standby"
+                    disp("Going into standby")
+                    return
 
             end
-
-            % Set isBrewing to false only when all orders are processed
-            handles.isBrewing = false;
-            guidata(hObject, handles);  % Sync GUI data
+                
+            
         end
 
         function updateOrderListDisplay(~, hObject)
@@ -769,12 +804,13 @@ classdef BrewBotMovements
             nova2Waypoints = BrewBotMovements.GrabCup();
             ur3eWaypoints = BrewBotMovements.MovetoJug();
             obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
-            pause(5);
+
             
             % Place cup at machine + Grab Jug
             nova2Waypoints = BrewBotMovements.PlaceCupatMachine();
             ur3eWaypoints = BrewBotMovements.GrabJug();
             obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
+            pause(5);
             
             % Move to filter + Put Jug Below Frother
             nova2Waypoints = BrewBotMovements.MovetoFilter();
@@ -808,7 +844,7 @@ classdef BrewBotMovements
             ur3eWaypoints = BrewBotMovements.GetIce();
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices);
 
-            %add delay for ice to fill
+            pause(3);
 
             %Return cup with ice (UR3e only)
             ur3eWaypoints = BrewBotMovements.ReturnCupWithIce();
@@ -822,7 +858,7 @@ classdef BrewBotMovements
             ur3eWaypoints = BrewBotMovements.PickUpJug();
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
 
-            %add delay for pouring
+            pause(3);
 
             %place jug back after pouring (UR3e only)
             ur3eWaypoints = BrewBotMovements.PlaceJugBack();

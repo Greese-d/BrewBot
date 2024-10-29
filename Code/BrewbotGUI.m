@@ -148,6 +148,7 @@ function btn_emstop_Callback(hObject, eventdata, handles)
     
     % Changes e-stop flag to true
     disp("Emergency stop")
+    handles.movement.handleEmergency(hObject);
     handles.isStopped = true;
     guidata(hObject, handles);
     
@@ -173,10 +174,9 @@ function btn_reset_Callback(hObject, eventdata, handles)
     end
     
     % Bring Brewbot to default position
-    handles.isBrewing = false;
     handles.order_list = strings(0);
     guidata(hObject, handles);
-    handles.movement.resetRobots();
+    handles.movement.handleReset(hObject)
     handles.movement.updateOrderListDisplay(hObject)
     
     % Enable menu options buttons again

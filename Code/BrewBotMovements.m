@@ -31,6 +31,8 @@ classdef BrewBotMovements
         arduinoObj; % Arduino object for button monitoring;
         ur3eGripper;
         nova2Gripper;
+
+        state;
         
     end
     
@@ -379,6 +381,8 @@ classdef BrewBotMovements
             obj.cupWithLidVerticesInitial = obj.cupWithLidVertices;
 
             obj.arduinoObj = arduinoObj;  % Store the Arduino object
+
+            obj.state = "Standby";
             
             % Creating grippers
             %obj.ur3eGripper = DualFingerGripper(); % Creating gripper for UR3e
@@ -418,6 +422,31 @@ classdef BrewBotMovements
                     % stop = true;  % Uncomment if you want to stop the process in case of an Arduino error
                 end
             end
+        end
+
+        function obj = handleEmergency(obj, hObject) 
+            obj.state = "Stopped";
+            obj.ProcessOrders(hObject);
+        end
+
+        function obj = handleReset(obj, hObject) 
+            obj.state = "Resetting";
+            obj.brew(hObject);
+        end
+
+        function obj = handleResume(obj, hObject)
+            obj.state = "Resuming";
+            ProcessOrders(obj, hObject);
+        end
+
+        function obj = handleBrew(obj, hObject)
+            obj.state = "Brewing";
+            ProcessOrders(obj, hObject);
+        end
+        
+        function obj = handleStandby(obj, hObject)
+            obj.state = "Standby";
+            ProcessOrders(obj, hObject);
         end
 
 
@@ -522,25 +551,47 @@ classdef BrewBotMovements
         function handleOrder(obj, hObject)
             handles = guidata(hObject);
             disp("Received a new order: " + handles.order_list(end))
-            disp("Current list of orders: " + handles.order_list(:))
             obj.updateOrderListDisplay(hObject)
-            
 
             % Only start processing orders if not already brewing
-            if ~handles.isBrewing
-                handles.isBrewing = true;  % Set isBrewing to true in handles
-                guidata(hObject, handles); % Sync GUI data
+            if obj.state == "Standby"
+                obj.state = "Brewing";  % Set isBrewing to true in handles
                 obj.ProcessOrders(hObject);  % Start order processing
             end
         end
         
         % Processing orders - Calls for making drinks go here
         % this function observes orders from GUI)
-        function ProcessOrders(obj, hObject)
-            handles = guidata(hObject);
+        function obj = ProcessOrders(obj, hObject)
+            
+            disp("Current state " + obj.state)
 
-            % while ~isempty(handles.order_list)
+            switch obj.state
+                case "Brewing"
+                    obj.brew(hObject);
+
+                case "Stopped"
+                    disp("Was stopped")
+                    obj.handleStandby(hObject);
+                    
+                case "Resuming"
+                case "Resetting"
+                    obj.resetRobots;
+                    obj.handleStandby(hObject);
+
+                case "Standby"
+                    disp("Going into standby")
+                    return
+
+            end
+                
+            
+        end
+
+        function brew(obj, hObject)
+            handles = guidata(hObject);
             while ~isempty(handles.order_list)
+                
                 order = handles.order_list(1);  % Get the first order
                 disp("Brewbot is making the order for " + order);  % Execute the order
 
@@ -565,14 +616,8 @@ classdef BrewBotMovements
                     otherwise
                         disp("Invalid item ordered")
                 end
-                
-                handles = guidata(hObject);
-                if isempty(handles.order_list)
-                    break
-                end
 
                 disp("Order is complete");
-                
                 resetObjects(obj);
 
                 % Remove the processed order
@@ -582,10 +627,8 @@ classdef BrewBotMovements
                 obj.updateOrderListDisplay(hObject)
 
             end
-
             % Set isBrewing to false only when all orders are processed
-            handles.isBrewing = false;
-            guidata(hObject, handles);  % Sync GUI data
+            obj.handleStandby(hObject);
         end
 
         function updateOrderListDisplay(~, hObject)
@@ -600,6 +643,10 @@ classdef BrewBotMovements
         
         %% Methods for drinks
         function espressoCreate(obj, hObject)
+            if obj.state == "Stopped"
+                return
+            end
+
             % Function that creates an espresso drink.
             
             % Grab cup (Nova2 only)
