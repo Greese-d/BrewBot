@@ -1,36 +1,28 @@
 classdef EnvSetup
     properties
-        % Define properties for each environment object
         nova2;
         ur3e;
         cup;
         cupLid;
         milkJug;
         portafilter;
-        teaBag
+        teaBag;
         cupWithLid;
-        
-        % Axes and view settings
-        axisLimits;
-        viewAngles;
+        boundingBoxes; % Bounding boxes for collision detection
     end
     
     methods
         function obj = EnvSetup()
-            % Constructor method that sets up the environment
-            obj = obj.setupEnvironment();
-        end
-        
-        function obj = setupEnvironment(obj)
-            % This function sets up the environment, replacing the old EnvSetup function
+
+            % Setup the environment with objects and bounding boxes
             
-            hold on;  % Hold the current plot for multiple objects
-            axis equal;  % Maintain equal scaling for all axes
-            obj.axisLimits = [-1.8 2.1 -1.8 1.8 -0.1 1.5];
-            axis(obj.axisLimits);  % Set the axis limits
-            obj.viewAngles = [210, 15];
-            view(obj.viewAngles);
+            hold on;
+            axis equal;
+            axis([-1.8 2.1 -1.8 1.8 -0.1 1.5]);
+            view([210, 15]);
+           
             
+            % Place static objects
             %% Initial coordinates to move the environment along 3 axes
             x = 0.2;
             y = 0;
@@ -81,6 +73,57 @@ classdef EnvSetup
             
 
             set(obj.cupWithLid, 'Visible', 'off');
-        end 
+
+            % Comment out this line if bounding boxes are not needed
+            obj = obj.setupBoundingBoxes();
+        end
+
+        function obj = setupBoundingBoxes(obj)
+            % Define bounding boxes for collision detection
+            boundingBoxMin1 = [-0.7, -0.55, 0.65];
+            boundingBoxMax1 = [-0.2, -0.2, 1.15];
+            boundingBoxMin2 = [0.05, -0.5, 0.65];
+            boundingBoxMax2 = [0.85, -0.2, 1.25];
+            boundingBoxMin3 = [0.9, -0.3, 0.65];
+            boundingBoxMax3 = [1.1, -0.2, 1.15];
+            boundingBoxMin4 = [1.25, 0.25, 0];
+            dimensions = [0.05, 0.6, 1.0];  % 10x60x100 cm in meters
+            boundingBoxMax4 = boundingBoxMin4 + dimensions;
+            obj.boundingBoxes = {boundingBoxMin1, boundingBoxMax1; boundingBoxMin2, boundingBoxMax2; 
+                boundingBoxMin3, boundingBoxMax3; boundingBoxMin4,boundingBoxMax4};
+
+            % Plot each bounding box
+            for i = 1:size(obj.boundingBoxes, 1)
+                obj.plotBoundingBox(obj.boundingBoxes{i, 1}, obj.boundingBoxes{i, 2});
+            end
+        end
+
+        function plotBoundingBox(~, boxMin, boxMax)
+            % Plot a 3D bounding box given minimum and maximum coordinates
+            vertices = [
+                boxMin;                            % Vertex 1
+                boxMin(1), boxMax(2), boxMin(3);   % Vertex 2
+                boxMax(1), boxMax(2), boxMin(3);   % Vertex 3
+                boxMax(1), boxMin(2), boxMin(3);   % Vertex 4
+                boxMin(1), boxMin(2), boxMax(3);   % Vertex 5
+                boxMin(1), boxMax(2), boxMax(3);   % Vertex 6
+                boxMax(1), boxMax(2), boxMax(3);   % Vertex 7
+                boxMax(1), boxMin(2), boxMax(3)    % Vertex 8
+            ];
+            
+            % Define faces of the box
+            faces = [
+                1, 2, 3, 4;  % Bottom face
+                5, 6, 7, 8;  % Top face
+                1, 2, 6, 5;  % Side face
+                2, 3, 7, 6;  % Side face
+                3, 4, 8, 7;  % Side face
+                4, 1, 5, 8   % Side face
+            ];
+            
+            % Plot the box with transparency
+            patch('Vertices', vertices, 'Faces', faces, ...
+                  'FaceColor', 'cyan', 'FaceAlpha', 0.1, 'EdgeColor', 'blue');
+        end
     end
 end
