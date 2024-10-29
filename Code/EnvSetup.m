@@ -9,14 +9,6 @@ classdef EnvSetup
         portafilter;
         teaBag
         cupWithLid;
-
-        % Non-movable objects
-        espressoMachine;
-        grinder;
-        iceCubeDispenser;
-        milkDispenser;
-        table;
-        teaBox
         
         % Axes and view settings
         axisLimits;
@@ -50,12 +42,15 @@ classdef EnvSetup
             surf([-2,-2;2,2],[-2,2;-2,2],[0,0;0,0],'CData',imread('FloorImage.jpg'),'FaceColor','texturemap');
             
             %% Non-movable objects setup
-            obj.espressoMachine = PlaceObject('EspressoMachine.ply', [x+0.25, y-0.5, z+0.65]);
-            obj.grinder = PlaceObject('Grinder.ply', [x+0.8, y-0.2, z+0.65]);
-            obj.iceCubeDispenser = PlaceObject('IceCubeDispenser.ply', [x-0.65, y-0.55, z+0.65]);
-            obj.milkDispenser = PlaceObject('MilkDispenser.ply', [x-0.3, y-0.25, z+0.66]);
-            obj.table = PlaceObject('Table.ply', [x+0, y+0, z+0.4]);
-            obj.teaBox = PlaceObject('TeaBox.ply', [x-0.27, y+0.45, z+0.6]);
+            espressoMachine = PlaceObject('EspressoMachine.ply', [x+0.25, y-0.5, z+0.65]);
+            grinder = PlaceObject('Grinder.ply', [x+0.8, y-0.2, z+0.65]);
+            iceCubeDispenser = PlaceObject('IceCubeDispenser.ply', [x-0.65, y-0.55, z+0.65]);
+            milkDispenser = PlaceObject('MilkDispenser.ply', [x-0.3, y-0.25, z+0.66]);
+            table = PlaceObject('Table.ply', [x+0, y+0, z+0.4]);
+            teaBox = PlaceObject('TeaBox.ply', [x-0.27, y+0.45, z+0.6]);
+            fireExtinguisher = PlaceObject('TeaBox.ply', [x-0.27, y+0.45, z+0.6]);
+            emergencyButton = PlaceObject('TeaBox.ply', [x-0.27, y+0.45, z+0.6]);
+
             
             %% Adding DobotNova2 and UR3e robots to the environment
             disp('Adding DobotNova2 robot to the environment');
@@ -65,12 +60,12 @@ classdef EnvSetup
             obj.ur3e = UR3e(transl(x-0.6, y+0.3, z+0.6));
             
             %% Create new instances of movable objects
-            obj.cup = PlaceObject('Cup.ply', [x+0.1, y+0.15, z+0.65]);
+            obj.cup = PlaceObject('Cup.ply', [x+0.15, y+0.2, z+0.65]);
             obj.cupLid = PlaceObject('CupLid.ply', [x+0.1, y+0.3, z+0.65]);
-            obj.milkJug = PlaceObject('MilkJug.ply', [x-0.1, y+0.3, z+0.65]);
+            obj.milkJug = PlaceObject('MilkJug.ply', [x-0.05, y+0.25, z+0.65]);
             obj.portafilter = PlaceObject('EspressoHandle.ply', [x+0, y+0.4, z+0.7]);
             obj.teaBag = PlaceObject('TeaBag.ply', [x-0.34, y+0.35, z+0.6]);
-            obj.cupWithLid = PlaceObject('CupWithLid.ply', [x+0.1, y+0.15, z+0.65]);
+            obj.cupWithLid = PlaceObject('CupWithLid.ply', [x, y+0.35, z+0.65]);
 
             set(obj.cupWithLid, 'Visible', 'off');
         end 
