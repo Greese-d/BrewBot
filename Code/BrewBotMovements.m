@@ -454,17 +454,17 @@ classdef BrewBotMovements
         % this function observes orders from GUI)
         function ProcessOrders(obj, hObject)
             handles = guidata(hObject);
-            orders = handles.order_list;
 
-            while ~isempty(orders)
-                order = orders(1);  % Get the first order
+            % while ~isempty(handles.order_list)
+            while ~isempty(handles.order_list)
+                order = handles.order_list(1);  % Get the first order
                 disp("Brewbot is making the order for " + order);  % Execute the order
 
                 % Process the order (espresso_test or other functions)
                 switch order
                     case "Espresso"
                         obj.espressoCreate(hObject);
-                    
+
                     case "Flat white"
                         disp("Here should be function for making Flat white")
                         pause(5)
@@ -476,25 +476,28 @@ classdef BrewBotMovements
                     case "Ice coffee"
                         disp("Here should be function for making Ice coffee")
                         pause(5)
-                        
+
                     case "Tea"
                         disp("Here should be function for making Tea")
                         pause(5)
-                    
+
                     otherwise
                         disp("Invalid item ordered")
-
                 end
-                        
+                
+                handles = guidata(hObject);
+                if isempty(handles.order_list)
+                    break
+                end
+
                 disp("Order is complete");
-              
+
                 % Remove the processed order
                 handles = guidata(hObject);
                 handles.order_list(1) = [];
-                orders = handles.order_list;
                 guidata(hObject, handles);  % Update GUI data
                 obj.updateOrderListDisplay(hObject)
-                
+
             end
 
             % Set isBrewing to false only when all orders are processed
