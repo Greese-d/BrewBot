@@ -26,7 +26,7 @@ classdef EnvSetup
             
             hold on;  % Hold the current plot for multiple objects
             axis equal;  % Maintain equal scaling for all axes
-            obj.axisLimits = [-1.8 2.1 -1.8 1.8 -0.1 1.5];
+            obj.axisLimits = [-1.8 1.8 -1.8 1.8 -0.1 1.5];
             axis(obj.axisLimits);  % Set the axis limits
             obj.viewAngles = [210, 15];
             view(obj.viewAngles);
@@ -49,27 +49,23 @@ classdef EnvSetup
             table = PlaceObject('Table.ply', [x+0, y+0, z+0.4]);
             teaBox = PlaceObject('TeaBox.ply', [x-0.27, y+0.45, z+0.6]);
 
-            fireExtinguisher = PlaceObject('fireExtinguisher.ply', [x+0.55, y+0.7, z+0.02]);
+            fireExtinguisher = PlaceObject('fireExtinguisherElevated.ply', [x+0.5, y+0.6, z+0.47]);
             verts = [get(fireExtinguisher,'Vertices'), ones(size(get(fireExtinguisher,'Vertices'),1),1)] * (trotz(pi/2))';
             set(fireExtinguisher,'Vertices',verts(:,1:3));  % Update button vertices after rotation
 
-            emergencyButton = PlaceObject('emergencyStopWallMounted.ply', [x+0.53, y-1.2, z+1.1]);
+            emergencyButton = PlaceObject('emergencyStopWallMounted.ply', [x+0.5, y-0, z+0.7]);
             verts = [get(emergencyButton,'Vertices'), ones(size(get(emergencyButton,'Vertices'),1),1)] * (trotz(pi/2))';
             set(emergencyButton,'Vertices',verts(:,1:3));  % Update button vertices after rotation
 
-            safetyFence = PlaceObject('barrier1.5x0.2x1m.ply', [x, y-1.85, z]);
-            verts = [get(safetyFence,'Vertices'), ones(size(get(safetyFence,'Vertices'),1),1)] * (trotz(pi/2))';
-            set(safetyFence,'Vertices',verts(:,1:3));  % Update button vertices after rotation
-
             %% Can be commented to remove the booth from environment for better view
-            coffeeBooth = PlaceObject('CoffeeBooth.ply', [x-1.3, y-0.6, z+0]); % add coffee booth model
+            %coffeeBooth = PlaceObject('CoffeeBooth.ply', [x-1.3, y-0.6, z+0]); % add coffee booth model
             
             %% Adding DobotNova2 and UR3e robots to the environment
             disp('Adding DobotNova2 robot to the environment');
-            obj.nova2 = DobotNova2(transl(x+0.6, y+0.3, z+0.6));
+            %obj.nova2 = DobotNova2(transl(x+0.6, y+0.3, z+0.6));
             
             disp('Adding UR3e robot to the environment');
-            obj.ur3e = UR3e(transl(x-0.6, y+0.3, z+0.6));
+            %obj.ur3e = UR3e(transl(x-0.6, y+0.3, z+0.6));
             
             %% Create new instances of movable objects
             obj.cup = PlaceObject('Cup.ply', [x+0.15, y+0.2, z+0.65]);
