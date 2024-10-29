@@ -587,7 +587,7 @@ classdef BrewBotMovements
         function handleOrder(obj, hObject)
             handles = guidata(hObject);
             disp("Received a new order: " + handles.order_list(end))
-            obj.updateOrderListDisplay(hObject)
+            obj.updateOrderListDisplay(hObject);
 
             % Only start processing orders if not already brewing
             if obj.state == "Standby"
