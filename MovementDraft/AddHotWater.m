@@ -27,7 +27,7 @@ view(210, 20)
 
 %% Teach function for nova2
 disp('Please teach the UR3e robot by moving it to the desired position and pressing Enter.');
-ur3e.model.teach();  % Call teach function to manually set the position
+nova2.model.teach();  % Call teach function to manually set the position
 
 %% Define a trajectory for UR3e based on the provided joint angles (from image)
 qWaypoints2 = [
