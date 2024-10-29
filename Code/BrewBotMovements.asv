@@ -183,26 +183,26 @@ classdef BrewBotMovements
             q2Waypoints = [
                         deg2rad([122, -50.4, 115, -151, 0, 0]);    % Pick cup
                         deg2rad([162, -50.4, 122, 0, 0, 0]);      % Rotate
-                        deg2rad([162, -57.7, 100, -43.2, 79.2, 0]);  % Grab cup
+                        deg2rad([176, -36.8, 66.8, -28.8, 108, 0]);  % Grab cup
                 
             ];
         end
         
         function q2Waypoints = GetIce()
             q2Waypoints = [
-                        deg2rad([162, -57.7, 100, -43.2, 79.2, 0]);  % Grab cup
-                        deg2rad([162, -93.7, 136, -43.2, 79.2, 0]); % Lift cup
-                        deg2rad([61.2, -93.7, 136, -43.2, 79.2, 0]); % Rotate
-                        deg2rad([61.2, -86.5, 108, -21.6, 79.2, 0]); % Wait for ice   
+                        deg2rad([176, -36.8, 66.8, -28.8, 108, -90]);  % Grab cup
+                        deg2rad([162, -93.7, 136, -43.2, 79.2, -90]); % Lift cup
+                        deg2rad([61.2, -93.7, 136, -43.2, 79.2, -90]); % Rotate
+                        deg2rad([61.2, -86.5, 108, -21.6, 79.2, -90]); % Wait for ice   
             ];
         end
         
         function q2Waypoints = ReturnCupWithIce() %add time before this
             q2Waypoints = [
-                        deg2rad([61.2, -86.5, 108, -21.6, 79.2, 0]); % Wait for ice
-                        deg2rad([61.2, -93.7, 136, -43.2, 79.2, 0]); % Pull
-                        deg2rad([162, -93.7, 136, -43.2, 79.2, 0]); % Lift cup
-                        deg2rad([162, -57.7, 100, -43.2, 79.2, 0]);  % Put cup down 
+                        deg2rad([61.2, -86.5, 108, -21.6, 79.2, -90]); % Wait for ice
+                        deg2rad([61.2, -93.7, 136, -43.2, 79.2, -90]); % Pull
+                        deg2rad([162, -93.7, 136, -43.2, 79.2, -90]); % Lift cup
+                        deg2rad([176, -36.8, 66.8, -28.8, 108, -90]);  % Put cup down 
             ];
         end
 
@@ -588,15 +588,12 @@ classdef BrewBotMovements
 
                     case "Flat white"
                         obj.flatwhiteCreate(hObject);
-                        pause(5)
 
                     case "Latte"
                         obj.latteCreate(hObject);
-                        pause(5)
 
                     case "Ice coffee"
                         obj.iceCoffeeCreate(hObject);
-                        pause(5)
 
                     case "Tea"
                         disp("Here should be function for making Tea")
@@ -1013,7 +1010,7 @@ classdef BrewBotMovements
             ur3eWaypoints =  BrewBotMovements.ReturnBotBack;
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []);
 
-%move to cup lid (nova2 only)
+            %move to cup lid (nova2 only)
             nova2Waypoints = BrewBotMovements.MovetoLid();
             obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
 
