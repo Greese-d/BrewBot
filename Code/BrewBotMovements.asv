@@ -183,14 +183,14 @@ classdef BrewBotMovements
             q2Waypoints = [
                         deg2rad([122, -50.4, 115, -151, 0, 0]);    % Pick cup
                         deg2rad([162, -50.4, 122, 0, 0, 0]);      % Rotate
-                        deg2rad([176, -36.8, 66.8, -28.8, 108, 0]);  % Grab cup
+                        deg2rad([176, -14.4, 12.2, 5, 108, 0]);  % Grab cup
                 
             ];
         end
         
         function q2Waypoints = GetIce()
             q2Waypoints = [
-                        deg2rad([176, -36.8, 66.8, -28.8, 108, -90]);  % Grab cup
+                        deg2rad([176, -14.4, 12.2, 5, 108, -90]);  % Grab cup
                         deg2rad([162, -93.7, 136, -43.2, 79.2, -90]); % Lift cup
                         deg2rad([61.2, -93.7, 136, -43.2, 79.2, -90]); % Rotate
                         deg2rad([61.2, -86.5, 108, -21.6, 79.2, -90]); % Wait for ice   
@@ -202,7 +202,7 @@ classdef BrewBotMovements
                         deg2rad([61.2, -86.5, 108, -21.6, 79.2, -90]); % Wait for ice
                         deg2rad([61.2, -93.7, 136, -43.2, 79.2, -90]); % Pull
                         deg2rad([162, -93.7, 136, -43.2, 79.2, -90]); % Lift cup
-                        deg2rad([176, -36.8, 66.8, -28.8, 108, -90]);  % Put cup down 
+                        deg2rad([176, -14.4, 12.2, 5, 108, -90]);  % drop cup
             ];
         end
 
@@ -337,7 +337,7 @@ classdef BrewBotMovements
             q2Waypoints = [
                     deg2rad([14.4, 43.2, -108, -14.4, 86.4, 0]);  % Pick lid
                     deg2rad([14.4, 57.6, -108, -14.4, 86.4, 0]);  % Lift lid
-                    deg2rad([5, 28.8, -51.4, -67.6, 101.4, 0]);  % Place lid
+                    deg2rad([5, 25, -44.2, -67.6, 101.4, 0]);  % Place lid
             ];
         end
         
@@ -596,7 +596,7 @@ classdef BrewBotMovements
                         obj.iceCoffeeCreate(hObject);
 
                     case "Tea"
-                        disp("Here should be function for making Tea")
+                        obj.teaCreate(hObject);
                         pause(5)
 
                     otherwise
@@ -832,14 +832,19 @@ classdef BrewBotMovements
             nova2Waypoints = BrewBotMovements.ReturnCup();
             obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, [], [], []);
 
-            %Nova2 go to initial + Move to cup to add ice
+            %Move to return filter (Nova2 only)
             nova2Waypoints = BrewBotMovements.MovetoReturnPipe();
-            ur3eWaypoints = BrewBotMovements.MovetoCup();
-            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
+            obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
 
-            %add ice to cup (UR3e only)
+            %Return filter + Move to cup to add ice
+            nova2Waypoints = BrewBotMovements.ReturnPipe();
+            ur3eWaypoints = BrewBotMovements.MovetoCup();
+            obj.moveRobot(hObject, nova2Waypoints, obj.portafilter, obj.portafilterVertices, ur3eWaypoints, [], []);
+
+            %Nova2 Return + add ice to cup (UR3e only)
+            nova2Waypoints = BrewBotMovements.ReturnHome();
             ur3eWaypoints = BrewBotMovements.GetIce();
-            obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices);
+            obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, obj.cup, obj.cupVertices);
 
             pause(3);
 
@@ -980,7 +985,7 @@ classdef BrewBotMovements
 
             %Move cup (Nova2 only)
             nova2Waypoints = BrewBotMovements.moveCupforTea();
-            obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupLidVertices, [], [], []);
+            obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, [], [], []);
 
             %Nova go back + UR3e move to tea bag
             nova2Waypoints = BrewBotMovements.gobackafterTea();
@@ -1000,7 +1005,6 @@ classdef BrewBotMovements
             ur3eWaypoints =  BrewBotMovements.AddHotWater;
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices);
 
-            pause(3);
 
             %Return cup with hot water (UR3e only)
             ur3eWaypoints =  BrewBotMovements.ReturnHotWaterCup;

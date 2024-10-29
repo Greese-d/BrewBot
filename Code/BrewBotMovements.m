@@ -985,7 +985,7 @@ classdef BrewBotMovements
 
             %Move cup (Nova2 only)
             nova2Waypoints = BrewBotMovements.moveCupforTea();
-            obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupLidVertices, [], [], []);
+            obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, [], [], []);
 
             %Nova go back + UR3e move to tea bag
             nova2Waypoints = BrewBotMovements.gobackafterTea();
@@ -1005,7 +1005,6 @@ classdef BrewBotMovements
             ur3eWaypoints =  BrewBotMovements.AddHotWater;
             obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices);
 
-            pause(3);
 
             %Return cup with hot water (UR3e only)
             ur3eWaypoints =  BrewBotMovements.ReturnHotWaterCup;
