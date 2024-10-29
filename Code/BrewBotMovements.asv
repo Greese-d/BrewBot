@@ -629,7 +629,7 @@ classdef BrewBotMovements
 
         function brew(obj, hObject)
             handles = guidata(hObject);
-            while ~isempty(handles.order_list)
+            while ~isempty(handles.order_list) & o
                 
                 order = handles.order_list(1);  % Get the first order
                 disp("Brewbot is making the order for " + order);  % Execute the order
@@ -655,7 +655,8 @@ classdef BrewBotMovements
                     otherwise
                         disp("Invalid item ordered")
                 end
-               
+                
+                disp("At the end of cofee making state is " + obj.state)
                 handles = guidata(hObject);
 
                 if handles.isStopped

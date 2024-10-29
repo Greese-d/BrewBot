@@ -108,6 +108,7 @@ function btn_espresso_Callback(hObject, eventdata, handles)
     handles.order_list(end+1) = "Espresso";
     guidata(hObject, handles);
     handles.movement.handleOrder(hObject);
+    
 
 
 
@@ -176,8 +177,8 @@ function btn_reset_Callback(hObject, eventdata, handles)
     % Bring Brewbot to default position
     handles.order_list = strings(0);
     guidata(hObject, handles);
-    handles.movement.handleReset(hObject)
-    handles.movement.updateOrderListDisplay(hObject)
+    handles.movement.handleReset(hObject);
+    handles.movement.updateOrderListDisplay(hObject);
     
     % Enable menu options buttons again
     set(handles.btn_espresso, "Enable", "on");
@@ -221,8 +222,6 @@ function btn_resume_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_resume (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    handles.isStopped = false;
-    guidata(hObject, handles);
     
     % Enable menu options buttons again
     set(handles.btn_espresso, "Enable", "on");
@@ -235,4 +234,8 @@ function btn_resume_Callback(hObject, eventdata, handles)
     set(handles.btn_reset, "Enable", "off");
     set(handles.btn_resume, "Enable", "off");
 
+    handles.isStopped = false;
+    guidata(hObject, handles);
+    handles.movement.handleResume(hObject);
+    
     disp("System resumed.");
