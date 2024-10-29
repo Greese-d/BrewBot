@@ -588,15 +588,12 @@ classdef BrewBotMovements
 
                     case "Flat white"
                         obj.flatwhiteCreate(hObject);
-                        pause(5)
 
                     case "Latte"
                         obj.latteCreate(hObject);
-                        pause(5)
 
                     case "Ice coffee"
                         obj.iceCoffeeCreate(hObject);
-                        pause(5)
 
                     case "Tea"
                         disp("Here should be function for making Tea")
