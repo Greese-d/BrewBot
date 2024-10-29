@@ -596,7 +596,7 @@ classdef BrewBotMovements
                         obj.iceCoffeeCreate(hObject);
 
                     case "Tea"
-                        disp("Here should be function for making Tea")
+                        obj.teaCreate(hObject);
                         pause(5)
 
                     otherwise
