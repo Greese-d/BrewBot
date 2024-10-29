@@ -289,8 +289,8 @@ classdef BrewBotMovements
         function q2Waypoints = otwGrabCup()
             q2Waypoints = [
                         deg2rad([173, -43.2, 50.4, -115, -93.6, 180]);        % Place tea bag in cup
-                        deg2rad([187, -43.2, 50.4, -115, -180, 180]);         % Move above cup
-                        deg2rad([187, -21.6, 50.4, -115, -180, 180]);         % Grab cup
+                        deg2rad([187, -43.2, 50.4, -115, 0, 180]);         % Move above cup
+                        deg2rad([187, -21.6, 50.4, -115, 0, 180]);         % Grab cup
             ];
         end
 
@@ -298,31 +298,30 @@ classdef BrewBotMovements
         
         function q2Waypoints = AddHotWater()
             q2Waypoints = [
-                        deg2rad([187, -21.6, 50.4, -115, -180, 180]);         % Grab cup
-                        deg2rad([187, -57.6, 108, -144, -180, 180]);          % Fold position to add hot water
-                        deg2rad([173, -50.4, 101, -144, -180, 180]);          % Pour hot water
+                        deg2rad([187, -21.6, 50.4, -115, 0, 180]);         % Grab cup
+                        deg2rad([187, -57.6, 108, -144, 0, 180]);          % Fold position to add hot water
+                        deg2rad([130, -64.8, 110, -151, 0, 0]);          % Pour hot water
             ];
         end
         
         function q2Waypoints = ReturnHotWaterCup()
             q2Waypoints =[
-                        deg2rad([173, -50.4, 101, -144, -180, 180]);          % Pour hot water
-                        deg2rad([187, -57.6, 180, -144, -180, 180]);          % Fold to return cup
-                        deg2rad([187, -21.6, 50.4, -115, -180, 180]);         % Return cup
+                        deg2rad([130, -64.8, 110, -151, 0, 0]);          % Pour hot water
+                        deg2rad([187, -57.6, 180, -144, 0, 180]);          % Fold to return cup
+                        deg2rad([187, -21.6, 50.4, -115, 0, 180]);         % Return cup
             ];
         end
         
         
         function q2Waypoints = ReturnBotBack()
             q2Waypoints =[
-                        deg2rad([187, -21.6, 50.4, -115, -180, 180]);         % Return cup
-                        deg2rad([345, -21.6, 50.4, -115, -180, 0]);         % Go home
-                        deg2rad([0, 0, 0, 0, 0, 0, 0]);                     % Reset to initial position
+                        deg2rad([187, -21.6, 50.4, -115, 0, 180]);         % Return cup
+                        deg2rad([60, -21.6, 50.4, -115, 0, 0]);         % Go home
+                        deg2rad([0, 0, 0, 0, 0, 0]);                     % Reset to initial position
             ];
         end
         
-        %% finish drink function
-        
+        %% Finish drink function
         %% For NOVA2
         
         function q2Waypoints = MovetoLid()
