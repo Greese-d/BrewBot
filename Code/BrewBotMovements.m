@@ -13,6 +13,7 @@ classdef BrewBotMovements
         teaBag;
         cupWithLid;
         baby;
+        boundingBoxes;
 
         portafilter;
         cupVertices;
@@ -392,6 +393,7 @@ classdef BrewBotMovements
             obj.ur3e_defaultPos = zeros(1, obj.ur3e.model.n);
             obj.nova2_defaultPos = zeros(1, obj.nova2.model.n);
             
+            obj.boundingBoxes = env.boundingBoxes;
             obj.baby = env.baby;
             %obj.babyVertices = get(obj.baby, 'Vertices');
 
@@ -787,6 +789,9 @@ classdef BrewBotMovements
                 if strcmp(ME.identifier, 'EmergencyStop:Triggered')
                     disp("Emergency stop activated. Exiting espressoCreate.");
                     return;
+                elseif strcmp(ME.identifier, 'Collision:Triggered')
+                    disp("Emergency stop activated. Exiting espressoCreate.");
+                    return;
                 else
                     rethrow(ME);  % Re-throw if it's not the emergency stop error
                 end
@@ -866,9 +871,10 @@ classdef BrewBotMovements
                 set(obj.cupLid, 'Visible', 'off');
                 set(obj.cupWithLid, 'Visible', 'on');
                 %UR3e pick up cup (Ur3e only)
+
+
                 ur3eWaypoints =  BrewBotMovements.PickUpFinishedCup();
                 obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cupWithLid, obj.cupWithLidVertices); %it should be cup with lid
-
 
                 %UR3e return (UR3e only)
                 ur3eWaypoints =  BrewBotMovements.ReturnUR3e();
@@ -880,6 +886,11 @@ classdef BrewBotMovements
                 if strcmp(ME.identifier, 'EmergencyStop:Triggered')
                     disp("Emergency stop activated. Exiting latteCreate.");
                     return;
+
+                elseif strcmp(ME.identifier, 'Collision:Triggered')
+                    disp("Emergency stop activated. Exiting latteCreate.");
+                    return;
+
                 else
                     rethrow(ME);  % Re-throw if it's not the emergency stop error
                 end
@@ -988,230 +999,14 @@ classdef BrewBotMovements
 
                 pause(3);
                 set(obj.cupWithLid, 'Visible', 'off');
+
             catch ME
                 if strcmp(ME.identifier, 'EmergencyStop:Triggered')
                     disp("Emergency stop activated. Exiting iceCoffeeCreate.");
                     return;
 
                 elseif strcmp(ME.identifier, 'Collision:Triggered')
-                    disp("Emergency stop activated. Exiting espressoCreate.");
-                    return;
-
-                else
-                    rethrow(ME);  % Re-throw if it's not the emergency stop error
-                end
-            end
-
-        end
-
-        function latteCreate(obj, hObject)
-            % Function that creates a latte drink.
-            try
-                % Grab cup + Move to milk jub movement
-                nova2Waypoints = BrewBotMovements.GrabCup();
-                ur3eWaypoints = BrewBotMovements.MovetoJug();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
-
-                % Place cup at machine + Grab Jug
-                nova2Waypoints = BrewBotMovements.PlaceCupatMachine();
-                ur3eWaypoints = BrewBotMovements.GrabJug();
-                obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
-                pause(5);
-
-                % Move to filter + Put Jug Below Frother
-                nova2Waypoints = BrewBotMovements.MovetoFilter();
-                ur3eWaypoints = BrewBotMovements.PutJugBelowFrother();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
-
-                %Portafilter to Grinder + Froth Milk
-                nova2Waypoints = BrewBotMovements.PipetoGrinder();
-                ur3eWaypoints = BrewBotMovements.FrothMilk();
-                obj.moveRobot(hObject, nova2Waypoints, obj.portafilter, obj.portafilterVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
-                pause(3);
-
-                %portafilter to machine + Finish Frothing
-                nova2Waypoints = BrewBotMovements.PipetoMachine();
-                ur3eWaypoints =  BrewBotMovements.FinishFrothing();
-                obj.moveRobot(hObject, nova2Waypoints, obj.portafilter, obj.portafilterVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
-                pause(5);
-
-                %Return Cup move to it only (Nova2 only)
-                nova2Waypoints = BrewBotMovements.MovetoReturnCup();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
-
-                %Return Cup (Nova2 only)
-                nova2Waypoints = BrewBotMovements.ReturnCup();
-                obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, [], [], []);
-
-                %move to return filter + pour milk
-                nova2Waypoints = BrewBotMovements.MovetoReturnPipe();
-                ur3eWaypoints =  BrewBotMovements.PickUpJug();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
-
-                %return filter + place milk jug back
-                nova2Waypoints = BrewBotMovements.ReturnPipe();
-                ur3eWaypoints =  BrewBotMovements.PlaceJugBack();
-                obj.moveRobot(hObject, nova2Waypoints, obj.portafilter, obj.portafilterVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
-
-                %Return to initial for nova2 and ur3e
-                nova2Waypoints = BrewBotMovements.ReturnHome();
-                ur3eWaypoints =  BrewBotMovements.ReturnBackafterPouring();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
-
-                %move to cup lid (nova2 only)
-                nova2Waypoints = BrewBotMovements.MovetoLid();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
-
-                %place cup lid (nova2 only)
-                nova2Waypoints = BrewBotMovements.GrabLid();
-                obj.moveRobot(hObject, nova2Waypoints, obj.cupLid, obj.cupLidVertices, [], [], []);
-
-                %Nova return home + Ur3 move to cup
-                nova2Waypoints = BrewBotMovements.ReturnNova2();
-                ur3eWaypoints =  BrewBotMovements.MovetoFinishedCup();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
-
-
-                set(obj.cup, 'Visible', 'off');
-                set(obj.cupLid, 'Visible', 'off');
-                set(obj.cupWithLid, 'Visible', 'on');
-                %UR3e pick up cup (Ur3e only)
-
-
-                ur3eWaypoints =  BrewBotMovements.PickUpFinishedCup();
-                obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cupWithLid, obj.cupWithLidVertices); %it should be cup with lid
-
-                %UR3e return (UR3e only)
-                ur3eWaypoints =  BrewBotMovements.ReturnUR3e();
-                obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []); %it should be cup with lid
-
-                pause(3);
-                set(obj.cupWithLid, 'Visible', 'off');
-            catch ME
-                if strcmp(ME.identifier, 'EmergencyStop:Triggered')
-                    disp("Emergency stop activated. Exiting espressoCreate.");
-                    return;
-
-                elseif strcmp(ME.identifier, 'Collision:Triggered')
-                    disp("Emergency stop activated. Exiting espressoCreate.");
-                    return;
-
-                else
-                    rethrow(ME);  % Re-throw if it's not the emergency stop error
-                end
-            end
-        end
-
-        function iceCoffeeCreate(obj, hObject)
-            % Function that creates an ice coffee drink.
-            try
-                % Grab cup + Move to milk jub movement
-                nova2Waypoints = BrewBotMovements.GrabCup();
-                ur3eWaypoints = BrewBotMovements.MovetoJug();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
-
-
-                % Place cup at machine + Grab Jug
-                nova2Waypoints = BrewBotMovements.PlaceCupatMachine();
-                ur3eWaypoints = BrewBotMovements.GrabJug();
-                obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
-                pause(5);
-
-                % Move to filter + Put Jug Below Frother
-                nova2Waypoints = BrewBotMovements.MovetoFilter();
-                ur3eWaypoints = BrewBotMovements.PutJugBelowFrother();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
-
-                %Portafilter to Grinder (Nova2 only)
-                nova2Waypoints = BrewBotMovements.PipetoGrinder();
-                obj.moveRobot(hObject, nova2Waypoints, obj.portafilter, obj.portafilterVertices, [], [], []);
-                pause(3);
-
-                %portafilter to machine (Nova2 only)
-                nova2Waypoints = BrewBotMovements.PipetoMachine();
-                obj.moveRobot(hObject, nova2Waypoints, obj.portafilter, obj.portafilterVertices, [], [], []);
-                pause(5);
-
-                %Return Cup move to it only (Nova2 only)
-                nova2Waypoints = BrewBotMovements.MovetoReturnCup();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
-
-                %Return Cup (Nova2 only)
-                nova2Waypoints = BrewBotMovements.ReturnCup();
-                obj.moveRobot(hObject, nova2Waypoints, obj.cup, obj.cupVertices, [], [], []);
-
-                %Move to return filter (Nova2 only)
-                nova2Waypoints = BrewBotMovements.MovetoReturnPipe();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
-
-                %Return filter + Move to cup to add ice
-                nova2Waypoints = BrewBotMovements.ReturnPipe();
-                ur3eWaypoints = BrewBotMovements.MovetoCup();
-                obj.moveRobot(hObject, nova2Waypoints, obj.portafilter, obj.portafilterVertices, ur3eWaypoints, [], []);
-
-                %Nova2 Return + add ice to cup (UR3e only)
-                nova2Waypoints = BrewBotMovements.ReturnHome();
-                ur3eWaypoints = BrewBotMovements.GetIce();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, obj.cup, obj.cupVertices);
-
-                pause(3);
-
-                %Return cup with ice (UR3e only)
-                ur3eWaypoints = BrewBotMovements.ReturnCupWithIce();
-                obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cup, obj.cupVertices);
-
-                %Go back to jug to start pouring (UR3e only)
-                ur3eWaypoints = BrewBotMovements.MovetoJugAfterIce();
-                obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []);
-
-                %pick up jug start pouring (UR3e only)
-                ur3eWaypoints = BrewBotMovements.PickUpJug();
-                obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
-
-                pause(3);
-
-                %place jug back after pouring (UR3e only)
-                ur3eWaypoints = BrewBotMovements.PlaceJugBack();
-                obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.milkJug, obj.milkJugVertices);
-
-                %Go to initial after pouring
-                ur3eWaypoints = BrewBotMovements.ReturnBackafterPouring();
-                obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []);
-
-                %move to cup lid (nova2 only)
-                nova2Waypoints = BrewBotMovements.MovetoLid();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], [], [], []);
-
-                %place cup lid (nova2 only)
-                nova2Waypoints = BrewBotMovements.GrabLid();
-                obj.moveRobot(hObject, nova2Waypoints, obj.cupLid, obj.cupLidVertices, [], [], []);
-
-                %Nova return home + Ur3 move to cup
-                nova2Waypoints = BrewBotMovements.ReturnNova2();
-                ur3eWaypoints =  BrewBotMovements.MovetoFinishedCup();
-                obj.moveRobot(hObject, nova2Waypoints, [], [], ur3eWaypoints, [], []);
-
-                set(obj.cup, 'Visible', 'off');
-                set(obj.cupLid, 'Visible', 'off');
-                set(obj.cupWithLid, 'Visible', 'on');
-                %UR3e pick up cup (Ur3e only)
-                ur3eWaypoints =  BrewBotMovements.PickUpFinishedCup();
-                obj.moveRobot(hObject, [], [], [], ur3eWaypoints, obj.cupWithLid, obj.cupWithLidVertices); %it should be cup with lid
-
-                %UR3e return (UR3e only)
-                ur3eWaypoints =  BrewBotMovements.ReturnUR3e();
-                obj.moveRobot(hObject, [], [], [], ur3eWaypoints, [], []); %it should be cup with lid
-
-                pause(3);
-                set(obj.cupWithLid, 'Visible', 'off');
-
-            catch ME
-                if strcmp(ME.identifier, 'EmergencyStop:Triggered')
-                    disp("Emergency stop activated. Exiting espressoCreate.");
-                    return;
-
-                elseif strcmp(ME.identifier, 'Collision:Triggered')
-                    disp("Emergency stop activated. Exiting espressoCreate.");
+                    disp("Emergency stop activated. Exiting iceCoffeeCreate.");
                     return;
 
                 else
@@ -1301,11 +1096,11 @@ classdef BrewBotMovements
 
             catch ME
                 if strcmp(ME.identifier, 'EmergencyStop:Triggered')
-                    disp("Emergency stop activated. Exiting espressoCreate.");
+                    disp("Emergency stop activated. Exiting flatwhiteCreate.");
                     return;
 
                 elseif strcmp(ME.identifier, 'Collision:Triggered')
-                    disp("Emergency stop activated. Exiting espressoCreate.");
+                    disp("Emergency stop activated. Exiting flatwhiteCreate.");
                     return;
 
                 else
@@ -1380,11 +1175,11 @@ classdef BrewBotMovements
                 set(obj.cupWithLid, 'Visible', 'off');
             catch ME
                 if strcmp(ME.identifier, 'EmergencyStop:Triggered')
-                    disp("Emergency stop activated. Exiting espressoCreate.");
+                    disp("Emergency stop activated. Exiting teaCreate.");
                     return;
 
                 elseif strcmp(ME.identifier, 'Collision:Triggered')
-                    disp("Emergency stop activated. Exiting espressoCreate.");
+                    disp("Emergency stop activated. Exiting teaCreate.");
                     return;
 
                 else
